@@ -3,11 +3,11 @@ import path from "path";
 
 const root = process.cwd();
 
-const i18nDir = path.join(root, "src/features/i18n");
-
-if (fs.existsSync(i18nDir)) {
-    fs.rmSync(i18nDir, { recursive: true, force: true });
-    console.log("✔ Removed src/features/i18n");
+function removeDirectory(dir) {
+    if (fs.existsSync(dir)) {
+        fs.rmSync(dir, { recursive: true, force: true });
+        console.log(`✔ Removed ${path.relative(root, dir)}`);
+    }
 }
 
 function replaceNoI18n(filePath) {
@@ -29,6 +29,11 @@ function replaceNoI18n(filePath) {
     );
 }
 
+// Remove i18n-owned directories
+removeDirectory(path.join(root, "src/features/i18n"));
+removeDirectory(path.join(root, "src/pages/fr"));
+
+// Replace fallback utility files
 replaceNoI18n("src/js/getSiteContext");
 replaceNoI18n("src/js/getBlogPosts");
 
