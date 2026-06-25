@@ -4,11 +4,13 @@ import { BUSINESS } from "@data/client";
 import navData from "@data/navData.json";
 import { getCurrentYear } from "@js/utils";
 import { getLocaleFromUrl } from "@js/localeUtils";
-import { useTranslations, getLocalizedRoute } from "@js/translationUtils";
+import { getLocalizedRoute } from "@js/translationUtils";
 import logoWhite from "@assets/svgs/logo-white.svg";
+import { getContent } from "@js/getContent";
 
 const locale = getLocaleFromUrl(Astro.url);
-const t = useTranslations(locale);
+const content = await getContent(locale);
+
 const currentYear = getCurrentYear();
 ---
 
@@ -16,31 +18,42 @@ const currentYear = getCurrentYear();
 <footer id="footer">
   <div class="container">
     <section class="left-section">
-      <a class="logo" href={getLocalizedRoute(locale,"/")}
-        ><Image src={logoWhite} alt="logo" width={264} height={78} loading="lazy" decoding="async" />
+      <a class="logo" href={getLocalizedRoute(locale, "/")}
+        ><Image
+          src={logoWhite}
+          alt="logo"
+          width={264}
+          height={78}
+          loading="lazy"
+          decoding="async"
+        />
       </a>
       <p>
-        {t("footer.p")}
+        {content.common.footer.p}
       </p>
     </section>
     <section class="right-section">
       <div class="lists">
         <ul>
           <li>
-            <h2>{t("footer.information")}</h2>
+            <h2>{content.common.footer.information}</h2>
           </li>
           <!-- Note: `:any` is solely used to stop the TypeScript warnings. It's an upstream issue with the i18n package which does not impact the code. -->
           {
             navData.map((entry: any) => (
               <li>
-                {entry.url && (<a href={getLocalizedRoute(locale,entry.url)}>{entry.label[locale]}</a>)}
+                {entry.url && (
+                  <a href={getLocalizedRoute(locale, entry.url)}>
+                    {entry.label[locale]}
+                  </a>
+                )}
               </li>
             ))
           }
         </ul>
         <ul>
           <li>
-            <h2>{t("footer.services")}</h2>
+            <h2>{content.common.footer.services}</h2>
           </li>
           <li>Service1</li>
           <li>Service2</li>
@@ -49,10 +62,10 @@ const currentYear = getCurrentYear();
         </ul>
         <ul>
           <li>
-            <h2>{t("footer.contact")}</h2>
+            <h2>{content.common.footer.contact}</h2>
           </li>
           <li>
-            <a href={getLocalizedRoute(locale,"/contact")}>
+            <a href={getLocalizedRoute(locale, "/contact")}>
               {BUSINESS.address.lineOne}<br />
               {BUSINESS.address.lineTwo}<br />
               {BUSINESS.address.city}
@@ -67,7 +80,9 @@ const currentYear = getCurrentYear();
             </a>
           </li>
           <li>
-            <a href={`mailto:${BUSINESS.email}`}>{t("footer.click")}</a>
+            <a href={`mailto:${BUSINESS.email}`}
+              >{content.common.footer.click}</a
+            >
           </li>
         </ul>
       </div>
@@ -75,8 +90,10 @@ const currentYear = getCurrentYear();
   </div>
 
   <section class="credit">
-    <span>{t("footer.credit")}</span>
-    <a href={getLocalizedRoute(locale,"/")} target="_blank" rel="noopener">Your Company Name</a>
+    <span>{content.common.footer.credit}</span>
+    <a href={getLocalizedRoute(locale, "/")} target="_blank" rel="noopener"
+      >Your Company Name</a
+    >
     <span class="copyright"> Copyright {currentYear}</span>
   </section>
 </footer>
