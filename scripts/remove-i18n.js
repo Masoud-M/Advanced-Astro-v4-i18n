@@ -36,5 +36,6 @@ removeDirectory(path.join(root, "src/pages/fr"));
 // Replace fallback utility files
 replaceNoI18n("src/js/getSiteContext");
 replaceNoI18n("src/js/getBlogPosts");
+replaceNoI18n("src/js/routes");
 
 console.log("\n✔ i18n removal complete");
