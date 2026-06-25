@@ -12,7 +12,6 @@ const { locale } = await getSiteContext(Astro.url);
 
 <header id="cs-navigation">
   <div class="cs-container">
-    <!--Nav Logo-->
     <a href={getRoute(locale, "/")} class="cs-logo" aria-label="back to home">
       <Image
         src={logoBlack}
@@ -24,9 +23,7 @@ const { locale } = await getSiteContext(Astro.url);
         priority
       />
     </a>
-    <!--Navigation List-->
     <nav class="cs-nav" role="navigation">
-      <!--Mobile Nav Toggle-->
       <button
         class="cs-toggle"
         id="mobile-menu-toggle"
@@ -40,11 +37,9 @@ const { locale } = await getSiteContext(Astro.url);
           <span class="cs-line cs-line3" aria-hidden="true"></span>
         </div>
       </button>
-      <!-- We need a wrapper div so we can set a fixed height on the cs-ul in case the nav list gets too long from too many dropdowns being opened and needs to have an overflow scroll. This wrapper acts as the background so it can go the full height of the screen and not cut off any overflowing nav items while the cs-ul stops short of the bottom of the screen, which keeps all nav items in view no matter how mnay there are-->
-      <!-- This also allows for easy substitution of CodeStitch navigations. Just replace the .cs-ul-wrapper in the new navigation with this one -->
+      
       <div class="cs-ul-wrapper">
         <ul id="cs-expanded-ul" class="cs-ul">
-          <!-- Note: `:any` is solely used to stop the TypeScript warnings. It's an upstream issue with the i18n package which does not impact the code. -->
           {
             navData.map((entry: any) => (
               <li
@@ -54,70 +49,75 @@ const { locale } = await getSiteContext(Astro.url);
                 ]}
               >
                 {entry.children?.length > 0 ? (
-                  // If entry has children in navData.json, create a button and a dropdown icon
+                  // Safe Dropdown Toggle Button (Handles missing parent url safely)
                   <button
                     aria-expanded="false"
                     aria-controls={`submenu-${entry.key}`}
                     class:list={[
                       "cs-li-link cs-dropdown-button",
-                      { "cs-active": Astro.url.pathname.includes(entry.url) },
+                      {
+                        "cs-active": entry.url?.[locale] 
+                          ? Astro.url.pathname.includes(entry.url[locale]) 
+                          : false,
+                      },
                     ]}
                   >
-                    {entry.label[locale]}
+                    {entry.label?.[locale] || entry.key}
                     <Icon name="mdi--caret" class="cs-drop-icon" />
                   </button>
                 ) : (
-                  // If entry does not have children in navData.json, create an anchor
+                  // Standard Nav Link Anchor
                   <a
-                    href={getRoute(locale, entry.url)}
+                    href={getRoute(locale, entry.url?.[locale] || "/")}
                     class:list={[
                       "cs-li-link",
                       {
                         "cs-active":
-                          Astro.url.pathname === getRoute(locale, entry.url),
+                          Astro.url.pathname === getRoute(locale, entry.url?.[locale] || "/"),
                       },
                     ]}
                     aria-current={
-                      Astro.url.pathname === getRoute(locale, entry.url)
+                      Astro.url.pathname === getRoute(locale, entry.url?.[locale] || "/")
                         ? "page"
                         : undefined
                     }
                   >
-                    {entry.label[locale]}
+                    {entry.label?.[locale] || entry.key}
                   </a>
                 )}
 
                 {entry.children?.length > 0 && (
-                  // If entry has children in navData.json, create a drop down menu
+                  // Safe Submenu Child Mapping
                   <ul id={`submenu-${entry.key}`} class="cs-drop-ul">
-                    {entry.children.map((child: any) => (
-                      <li class="cs-drop-li">
-                        <a
-                          href={getRoute(locale, child.url)}
-                          class="cs-li-link cs-drop-link"
-                          aria-current={
-                            Astro.url.pathname === getRoute(locale, child.url)
-                              ? "page"
-                              : undefined
-                          }
-                        >
-                          {child.label[locale]}
-                        </a>
-                      </li>
-                    ))}
+                    {entry.children.map((child: any) => {
+                      const childPath = child.url?.[locale] || "";
+                      const localizedRoute = getRoute(locale, childPath);
+                      
+                      return (
+                        <li class="cs-drop-li">
+                          <a
+                            href={localizedRoute}
+                            class:list=["cs-li-link cs-drop-link"]
+                            aria-current={
+                              Astro.url.pathname === localizedRoute ? "page" : undefined
+                            }
+                          >
+                            {child.label?.[locale] || child.key}
+                          </a>
+                        </li>
+                      );
+                    })}
                   </ul>
                 )}
               </li>
             ))
           }
         </ul>
-        <!-- shown on mobile menu by default  -->
         <div class="cs-shown cs-settings">
           <Settings />
         </div>
       </div>
     </nav>
-    <!-- shown on desktop menu by default  -->
     <div class="cs-hidden cs-settings">
       <Settings />
     </div>

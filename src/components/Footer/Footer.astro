@@ -41,7 +41,7 @@ const currentYear = getCurrentYear();
             navData.map((entry: any) => (
               <li>
                 {entry.url && (
-                  <a href={getRoute(locale, entry.url)}>
+                  <a href={getRoute(locale, entry.url[locale])}>
                     {entry.label[locale]}
                   </a>
                 )}
