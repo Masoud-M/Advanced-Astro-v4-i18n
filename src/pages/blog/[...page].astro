@@ -1,8 +1,6 @@
 ---
 import type { GetStaticPaths, Page } from "astro";
-import { getCollection } from "astro:content";
 import { getSiteContext } from "@js/getSiteContext";
-import { filterCollectionByLanguage } from "src/features/i18n/localeUtils";
 import BaseLayout from "@layouts/BaseLayout.astro";
 import CTA from "@components/CTA/CTA.astro";
 import Banner from "@components/Banner/Banner.astro";
@@ -10,9 +8,8 @@ import BlogPreview from "@components/BlogPreview/BlogPreview.astro";
 import Pagination from "@components/Pagination/Pagination.astro";
 
 export const getStaticPaths = (async ({ paginate }) => {
-  const allPosts = await getCollection("blog");
-  const frPosts = filterCollectionByLanguage(allPosts, "fr");
-  const sortedPosts = frPosts.sort(
+  const enPosts = await getBlogPosts("en");
+  const sortedPosts = enPosts.sort(
     (a, b) => new Date(b.data.date).valueOf() - new Date(a.data.date).valueOf(),
   );
 
@@ -22,6 +19,7 @@ export const getStaticPaths = (async ({ paginate }) => {
 }) satisfies GetStaticPaths;
 
 import landingImage from "@assets/images/landing.jpg";
+import { getBlogPosts } from "@js/getBlogPosts";
 
 const { content } = await getSiteContext(Astro.url);
 const { page } = Astro.props as { page: Page };

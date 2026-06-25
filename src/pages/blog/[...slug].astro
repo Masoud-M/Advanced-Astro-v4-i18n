@@ -1,9 +1,6 @@
 ---
 import type { GetStaticPaths } from "astro";
-import { getCollection } from "astro:content";
 import { getPostSlug } from "@js/blogUtils";
-import { filterCollectionByLanguage } from "src/features/i18n/localeUtils";
-
 import { getSiteContext } from "@js/getSiteContext";
 import BaseLayout from "@layouts/BaseLayout.astro";
 import Banner from "@components/Banner/Banner.astro";
@@ -12,10 +9,10 @@ import FeaturedPost from "@components/FeaturedPost/FeaturedPost.astro";
 import { getBlogPostingSchema } from "@js/blogPostingSchema";
 
 import landingImage from "@assets/images/landing.jpg";
+import { getBlogPosts } from "@js/getBlogPosts";
 
 export const getStaticPaths = (async () => {
-  const allPosts = await getCollection("blog");
-  const posts = filterCollectionByLanguage(allPosts, "fr");
+  const posts = await getBlogPosts(locale);
 
   return posts.map((post) => ({
     params: {

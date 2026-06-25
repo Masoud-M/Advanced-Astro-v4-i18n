@@ -2,10 +2,10 @@
 import { getCollection } from "astro:content";
 import { Picture } from "astro:assets";
 import { formatDate } from "@js/utils";
-import { getPostSlug } from "src/features/i18n/localeUtils8n/localeUtils";
-import { getLocalizedRoute } from "@js/translationUtils";
 
 import { getSiteContext } from "@js/getSiteContext";
+import { getPostSlug } from "@js/blogUtils";
+import { getRoute } from "@js/routes";
 
 const { locale, content } = await getSiteContext(Astro.url);
 
@@ -22,7 +22,7 @@ const featuredPosts = await getCollection("blog", ({ id, data }) => {
       featuredPosts.map((post) => (
         <a
           class="blog-feature"
-          href={getLocalizedRoute(locale, `/blog/${getPostSlug(post)}`)}
+          href={getRoute(locale, `/blog/${getPostSlug(post)}`)}
         >
           <Picture
             src={post.data.image}

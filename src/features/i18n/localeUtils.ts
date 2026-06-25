@@ -14,7 +14,7 @@ export function filterCollectionByLanguage<T extends { id: string }>(
 
 /** Extract locale from a URL pathname. Returns defaultLocale if no locale prefix found. */
 export function getLocaleFromUrl(url: URL): Locale {
-  const [, segment] = url.pathname.split("/");
+  const [segment] = url.pathname.split("/");
   if (locales.includes(segment as Locale)) {
     return segment as Locale;
   }

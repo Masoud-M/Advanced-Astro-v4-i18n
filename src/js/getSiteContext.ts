@@ -17,17 +17,3 @@ export async function getSiteContext(url: URL) {
     alternates,
   };
 }
-
-// AFTER DELETING I18N IT BECOMES LIKE THIS
-// import { getContent } from "./getContent";
-
-// export async function getSiteContext(url: URL) {
-// 	const content = await getContent("en");
-
-// 	return {
-// 		locale: "en",
-// 		lang: "en",
-// 		content,
-// 		alternates: [],
-// 	};
-// }
