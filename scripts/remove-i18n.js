@@ -50,6 +50,7 @@ function replaceNoI18n(filePath) {
 // Remove i18n-owned directories
 removeDirectory(path.join(root, "src/features/i18n"));
 removeDirectory(path.join(root, "src/pages/fr"));
+removeDirectory(path.join(root, "src/locales/fr"));
 
 // Replace fallback utility files
 replaceNoI18n("src/js/getSiteContext");
