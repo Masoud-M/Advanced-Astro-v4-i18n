@@ -18,8 +18,3 @@ export function getRoute(locale: string | undefined, path: string) {
 
   return normalizePath(`/${locale}${cleanPath}`);
 }
-
-// AFTER REMOVING THE i18n IT SHOULD LOOK LIKE THIS
-// export function getRoute(path: string) {
-//   return path;
-// }
