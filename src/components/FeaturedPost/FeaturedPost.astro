@@ -3,24 +3,35 @@ import { getCollection } from "astro:content";
 import { Picture } from "astro:assets";
 import { formatDate } from "@js/utils";
 import { getLocaleFromUrl, getPostSlug } from "@js/localeUtils";
-import { useTranslations, getLocalizedRoute } from "@js/translationUtils";
+import { getLocalizedRoute } from "@js/translationUtils";
+import { getContent } from "@js/getContent";
 
 const locale = getLocaleFromUrl(Astro.url);
-const t = useTranslations(locale);
+const content = await getContent(locale);
+
 const featuredPosts = await getCollection("blog", ({ id, data }) => {
   return id.startsWith(locale) && data.featured === true;
 });
-
 ---
 
 <div class="blog-sidebar">
   <div class="blog-featured-group">
-    <span class="blog-header">{t("blog:featuredPosts")}</span>
-    {featuredPosts.length === 0 && <h2>{t("blog:noFeaturedPosts")}</h2>}
+    <span class="blog-header">{content.blog.featuredPosts}</span>
+    {featuredPosts.length === 0 && <h2>{content.blog.noFeaturedPosts}</h2>}
     {
       featuredPosts.map((post) => (
-        <a class="blog-feature" href={getLocalizedRoute(locale, `/blog/${getPostSlug(post)}`)}>
-          <Picture src={post.data.image} alt={post.data.imageAlt} width={60} formats={["avif", "webp"]} pictureAttributes={{ class: "blog-featureImage" }} decoding="async" />
+        <a
+          class="blog-feature"
+          href={getLocalizedRoute(locale, `/blog/${getPostSlug(post)}`)}
+        >
+          <Picture
+            src={post.data.image}
+            alt={post.data.imageAlt}
+            width={60}
+            formats={["avif", "webp"]}
+            pictureAttributes={{ class: "blog-featureImage" }}
+            decoding="async"
+          />
           <div class="content-group">
             <h3 class="feature-h3">{post.data.title}</h3>
             <span class="feature-date">{formatDate(post.data.date)}</span>

@@ -1,9 +1,11 @@
 ---
 import { getLocaleFromUrl } from "@js/localeUtils";
-import { useTranslations, getLocalizedRoute } from "@js/translationUtils";
+import { getLocalizedRoute } from "@js/translationUtils";
+import { getContent } from "@js/getContent";
 
 const locale = getLocaleFromUrl(Astro.url);
-const t = useTranslations(locale);
+const content = await getContent(locale);
+
 import CSPicture from "@components/CSPicture/CSPicture.astro";
 import ctaImage from "@assets/images/CTA/cabinets2.jpg";
 import ctaSquaresUrl from "@assets/svgs/cta-squares.svg?url";
@@ -13,16 +15,18 @@ const ctaSquaresBg = `url("${ctaSquaresUrl}")`;
 <section id="cta">
   <div class="container">
     <h2 class="title">
-      {t("ctaComponent.title")}
+      {content.common.ctaComponent.title}
       <br />
-      {t("ctaComponent.subtitle")}
+      {content.common.ctaComponent.subtitle}
     </h2>
     <p>
-      {t("ctaComponent.message")}
+      {content.common.ctaComponent.message}
     </p>
-    <a href={getLocalizedRoute(locale,"/contact")} class="cs-button-solid">{t("ctaComponent.cta")}</a>
+    <a href={getLocalizedRoute(locale, "/contact")} class="cs-button-solid"
+      >{content.common.ctaComponent.cta}</a
+    >
   </div>
-  <CSPicture src={ctaImage} alt={t("ctaComponent.alt")} />
+  <CSPicture src={ctaImage} alt={content.common.ctaComponent.alt} />
 </section>
 
 <!-- Don't forget to place the picture styles over into the CSPicture component -->
