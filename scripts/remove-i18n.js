@@ -1,12 +1,57 @@
+#!/usr/bin/env node
+
 import fs from "fs";
 import path from "path";
+import readline from "readline";
 
 const root = process.cwd();
+const backupRootDir = path.join(root, "scripts/deleted");
+
+// ─── Guard: already run? ──────────────────────────────────────────────────────
+const markerPath = path.join(root, ".i18n-removed");
+if (fs.existsSync(markerPath)) {
+    console.log("i18n has already been removed (.i18n-removed marker exists).");
+    process.exit(0);
+}
+
+// ─── Confirmation prompt ──────────────────────────────────────────────────────
+const rl = readline.createInterface({ input: process.stdin, output: process.stdout });
+
+rl.question(
+    "\n⚠️  This will permanently disable and remove i18n support from the project.\n" +
+    "Files will be backed up to 'scripts/deleted/'.\n\n" +
+    "Proceed? (y/n): ",
+    (answer) => {
+        rl.close();
+        if (answer.trim().toLowerCase() !== "y") {
+            console.log("Aborted. No files were changed.");
+            process.exit(0);
+        }
+        runRemoval();
+    }
+);
+
+// ─── Helpers ──────────────────────────────────────────────────────────────────
+
+/** Moves a file or directory to scripts/deleted/ preserving its relative hierarchy */
+function moveToDeletedBackup(targetPath) {
+    if (!fs.existsSync(targetPath)) return;
+
+    const relativePath = path.relative(root, targetPath);
+    const destinationPath = path.join(backupRootDir, relativePath);
+
+    // Create target directory structure inside scripts/deleted
+    fs.mkdirSync(path.dirname(destinationPath), { recursive: true });
+
+    // Move file/folder
+    fs.renameSync(targetPath, destinationPath);
+}
 
 function removeDirectory(dir) {
     if (fs.existsSync(dir)) {
-        fs.rmSync(dir, { recursive: true, force: true });
-        console.log(`✔ Removed ${path.relative(root, dir)}`);
+        const displayPath = path.relative(root, dir);
+        moveToDeletedBackup(dir);
+        console.log(`✔ Moved directory to backup: ${displayPath}`);
     }
 }
 
@@ -19,13 +64,19 @@ function removeFromFile(filePath, patterns) {
     }
 
     let content = fs.readFileSync(fullPath, "utf8");
+    let updated = false;
 
     for (const pattern of patterns) {
-        content = content.replace(pattern, "");
+        if (pattern.test(content)) {
+            content = content.replace(pattern, "");
+            updated = true;
+        }
     }
 
-    fs.writeFileSync(fullPath, content);
-    console.log(`✔ Updated ${filePath}`);
+    if (updated) {
+        fs.writeFileSync(fullPath, content);
+        console.log(`✔ Updated ${filePath}`);
+    }
 }
 
 function replaceNoI18n(filePath) {
@@ -36,8 +87,9 @@ function replaceNoI18n(filePath) {
         throw new Error(`Missing fallback file: ${noI18nPath}`);
     }
 
+    // If target exists, backup before overriding
     if (fs.existsSync(targetPath)) {
-        fs.rmSync(targetPath, { force: true });
+        moveToDeletedBackup(targetPath);
     }
 
     fs.renameSync(noI18nPath, targetPath);
@@ -47,25 +99,55 @@ function replaceNoI18n(filePath) {
     );
 }
 
-// Remove i18n-owned directories
-removeDirectory(path.join(root, "src/features/i18n"));
-removeDirectory(path.join(root, "src/pages/fr"));
-removeDirectory(path.join(root, "src/locales/fr"));
+function updateFeatureFlags() {
+    const flagsPath = path.join(root, "src/features/featuresflags.ts");
 
-// Replace fallback utility files
-replaceNoI18n("src/js/getSiteContext");
-replaceNoI18n("src/js/getBlogPosts");
-replaceNoI18n("src/js/routes");
+    if (!fs.existsSync(flagsPath)) {
+        console.warn(`⚠ Missing feature flags file: src/features/featuresflags.ts`);
+        return;
+    }
 
-// removes imports and component usage from files after i18n removal
-removeFromFile("src/components/Settings/Settings.astro", [
-    /import\s+TwoLocalesSelect\s+from\s+["']src\/features\/i18n\/LanguageSwitch\/TwoLocalesSelect\.astro["'];?\r?\n/g,
-    /\s*<TwoLocalesSelect\s*\/>\r?\n?/g,
-]);
+    let content = fs.readFileSync(flagsPath, "utf8");
 
-removeFromFile("src/pages/index.astro", [
-    /import\s+BrowserLanguageRedirect\s+from\s+["']src\/features\/i18n\/LanguageSwitch\/BrowserLanguageRedirect\.astro["'];?\r?\n/g,
-    /\s*<BrowserLanguageRedirect\s*\/>\r?\n?/g,
-]);
+    // Matches i18n: true (handles optional spaces/quotes around key and values)
+    const updatedContent = content.replace(/(i18n\s*:\s*)true/g, "$1false");
 
-console.log("\n✔ i18n removal complete");
+    if (content !== updatedContent) {
+        fs.writeFileSync(flagsPath, updatedContent);
+        console.log(`✔ Disabled i18n in src/features/featuresflags.ts`);
+    }
+}
+
+// ─── Main Execution ───────────────────────────────────────────────────────────
+function runRemoval() {
+    console.log("\nStarting i18n removal process...\n");
+
+    // 1. Flip i18n flag to false
+    updateFeatureFlags();
+
+    // 2. Remove (Move) i18n-owned directories
+    removeDirectory(path.join(root, "src/features/i18n"));
+    removeDirectory(path.join(root, "src/pages/fr"));
+    removeDirectory(path.join(root, "src/locales/fr"));
+
+    // 3. Replace fallback utility files (and backup the old ones)
+    replaceNoI18n("src/js/getSiteContext");
+    replaceNoI18n("src/js/getBlogPosts");
+    replaceNoI18n("src/js/routes");
+
+    // 4. Clean up imports and component usages
+    removeFromFile("src/components/Settings/Settings.astro", [
+        /import\s+TwoLocalesSelect\s+from\s+["']src\/features\/i18n\/LanguageSwitch\/TwoLocalesSelect\.astro["'];?\r?\n/g,
+        /\s*<TwoLocalesSelect\s*\/>\r?\n?/g,
+    ]);
+
+    removeFromFile("src/pages/index.astro", [
+        /import\s+BrowserLanguageRedirect\s+from\s+["']src\/features\/i18n\/LanguageSwitch\/BrowserLanguageRedirect\.astro["'];?\r?\n/g,
+        /\s*<BrowserLanguageRedirect\s*\/>\r?\n?/g,
+    ]);
+
+    // 5. Create structural execution marker
+    fs.writeFileSync(markerPath, new Date().toISOString() + "\n", "utf8");
+
+    console.log("\n✔ i18n removal complete. Originals backed up to scripts/deleted/");
+}
