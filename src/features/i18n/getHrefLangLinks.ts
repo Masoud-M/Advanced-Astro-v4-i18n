@@ -1,5 +1,5 @@
-import { getLocalizedPathname } from "@js/translationUtils";
-import { locales, localeMap } from "@config/siteSettings";
+import { locales, localeMap } from "src/features/i18n/config";
+import { getLocalizedPathname } from "./routing/getLocalizedPathname";
 
 export async function getHrefLangLinks(url: URL) {
   return Promise.all(

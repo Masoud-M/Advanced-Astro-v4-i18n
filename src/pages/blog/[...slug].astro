@@ -1,7 +1,9 @@
 ---
 import type { GetStaticPaths } from "astro";
 import { getCollection } from "astro:content";
-import { filterCollectionByLanguage, getPostSlug } from "@js/localeUtils";
+import { getPostSlug } from "@js/blogUtils";
+import { filterCollectionByLanguage } from "src/features/i18n/localeUtils";
+
 import { getSiteContext } from "@js/getSiteContext";
 import BaseLayout from "@layouts/BaseLayout.astro";
 import Banner from "@components/Banner/Banner.astro";

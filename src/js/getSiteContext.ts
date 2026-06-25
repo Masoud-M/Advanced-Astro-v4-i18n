@@ -1,7 +1,6 @@
 import { getContent } from "./getContent";
-import { getHrefLangLinks } from "./getHrefLangLinks";
-
-import { getLocaleFromUrl } from "./utils";
+import { getHrefLangLinks } from "../features/i18n/getHrefLangLinks";
+import { getLocaleFromUrl } from "../features/i18n/localeUtils";
 
 export async function getSiteContext(url: URL) {
   const locale = getLocaleFromUrl(url);
@@ -19,6 +18,7 @@ export async function getSiteContext(url: URL) {
   };
 }
 
+// AFTER DELETING I18N IT BECOMES LIKE THIS
 // import { getContent } from "./getContent";
 
 // export async function getSiteContext(url: URL) {

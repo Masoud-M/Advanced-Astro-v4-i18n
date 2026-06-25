@@ -1,14 +1,17 @@
 ---
-import { locales, defaultLocale } from "@config/siteSettings";
+import { locales, defaultLocale } from "src/features/i18n/config";
 
 const nonDefaultLocales = locales.filter((l) => l !== defaultLocale);
 ---
 
 <script is:inline define:vars={{ nonDefaultLocales }}>
   if (!localStorage.getItem("locale-preference")) {
-    var lang = (navigator.languages && navigator.languages[0]) || navigator.language;
+    var lang =
+      (navigator.languages && navigator.languages[0]) || navigator.language;
     if (lang) {
-      var match = nonDefaultLocales.find(function(l) { return lang.startsWith(l); });
+      var match = nonDefaultLocales.find(function (l) {
+        return lang.startsWith(l);
+      });
       if (match) window.location.replace("/" + match + "/");
     }
   }

@@ -1,19 +1,19 @@
-import type { Locale } from "./siteSettings";
+import type { Locale } from "./config.ts";
 
 export const routeTranslations: Record<Locale, Record<string, string>> = {
   en: {
-    "about": "about",
-    "projects": "projects",
+    about: "about",
+    projects: "projects",
     "project-1": "project-1",
     "project-2": "project-2",
-    "reviews": "reviews",
+    reviews: "reviews",
   },
   fr: {
-    "about": "a-propos",
-    "projects": "projets",
+    about: "a-propos",
+    projects: "projets",
     "project-1": "projet-1",
     "project-2": "projet-2",
-    "reviews": "avis",
+    reviews: "avis",
   },
 };
 

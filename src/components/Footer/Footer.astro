@@ -3,9 +3,9 @@ import { Image } from "astro:assets";
 import { BUSINESS } from "@data/client";
 import navData from "@data/navData.json";
 import { getCurrentYear } from "@js/utils";
-import { getLocalizedRoute } from "@js/translationUtils";
 import logoWhite from "@assets/svgs/logo-white.svg";
 import { getSiteContext } from "@js/getSiteContext";
+import { getRoute } from "@js/routes";
 
 const { locale, content } = await getSiteContext(Astro.url);
 
@@ -16,7 +16,7 @@ const currentYear = getCurrentYear();
 <footer id="footer">
   <div class="container">
     <section class="left-section">
-      <a class="logo" href={getLocalizedRoute(locale, "/")}
+      <a class="logo" href={getRoute(locale, "/")}
         ><Image
           src={logoWhite}
           alt="logo"
@@ -41,7 +41,7 @@ const currentYear = getCurrentYear();
             navData.map((entry: any) => (
               <li>
                 {entry.url && (
-                  <a href={getLocalizedRoute(locale, entry.url)}>
+                  <a href={getRoute(locale, entry.url)}>
                     {entry.label[locale]}
                   </a>
                 )}
@@ -63,7 +63,7 @@ const currentYear = getCurrentYear();
             <h2>{content.common.footer.contact}</h2>
           </li>
           <li>
-            <a href={getLocalizedRoute(locale, "/contact")}>
+            <a href={getRoute(locale, "/contact")}>
               {BUSINESS.address.lineOne}<br />
               {BUSINESS.address.lineTwo}<br />
               {BUSINESS.address.city}
@@ -89,7 +89,7 @@ const currentYear = getCurrentYear();
 
   <section class="credit">
     <span>{content.common.footer.credit}</span>
-    <a href={getLocalizedRoute(locale, "/")} target="_blank" rel="noopener"
+    <a href={getRoute(locale, "/")} target="_blank" rel="noopener"
       >Your Company Name</a
     >
     <span class="copyright"> Copyright {currentYear}</span>

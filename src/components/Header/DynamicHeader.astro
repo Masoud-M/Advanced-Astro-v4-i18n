@@ -2,7 +2,7 @@
 import navData from "@data/navData.json";
 import { Icon } from "astro-icon/components";
 import { Image } from "astro:assets";
-import { getLocalizedRoute } from "@js/translationUtils";
+import { getRoute } from "@js/routes";
 import Settings from "@components/Settings/Settings.astro";
 import logoBlack from "@assets/svgs/logo-black.svg";
 import { getSiteContext } from "@js/getSiteContext";
@@ -13,11 +13,7 @@ const { locale } = await getSiteContext(Astro.url);
 <header id="cs-navigation">
   <div class="cs-container">
     <!--Nav Logo-->
-    <a
-      href={getLocalizedRoute(locale, "/")}
-      class="cs-logo"
-      aria-label="back to home"
-    >
+    <a href={getRoute(locale, "/")} class="cs-logo" aria-label="back to home">
       <Image
         src={logoBlack}
         alt="logo"
@@ -73,18 +69,16 @@ const { locale } = await getSiteContext(Astro.url);
                 ) : (
                   // If entry does not have children in navData.json, create an anchor
                   <a
-                    href={getLocalizedRoute(locale, entry.url)}
+                    href={getRoute(locale, entry.url)}
                     class:list={[
                       "cs-li-link",
                       {
                         "cs-active":
-                          Astro.url.pathname ===
-                          getLocalizedRoute(locale, entry.url),
+                          Astro.url.pathname === getRoute(locale, entry.url),
                       },
                     ]}
                     aria-current={
-                      Astro.url.pathname ===
-                      getLocalizedRoute(locale, entry.url)
+                      Astro.url.pathname === getRoute(locale, entry.url)
                         ? "page"
                         : undefined
                     }
@@ -99,11 +93,10 @@ const { locale } = await getSiteContext(Astro.url);
                     {entry.children.map((child: any) => (
                       <li class="cs-drop-li">
                         <a
-                          href={getLocalizedRoute(locale, child.url)}
+                          href={getRoute(locale, child.url)}
                           class="cs-li-link cs-drop-link"
                           aria-current={
-                            Astro.url.pathname ===
-                            getLocalizedRoute(locale, child.url)
+                            Astro.url.pathname === getRoute(locale, child.url)
                               ? "page"
                               : undefined
                           }

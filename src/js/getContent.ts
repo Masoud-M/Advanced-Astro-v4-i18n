@@ -1,12 +1,7 @@
 import { loadTranslations } from "./loadTranslations";
+import { features } from "../features/featureFlags";
 
-function detectI18nEnabled() {
-  const modules = import.meta.glob("../js/translationUtils.ts");
-
-  return Object.keys(modules).length > 0;
-}
-
-const i18nEnabled = detectI18nEnabled();
+export const i18nEnabled = features.i18n;
 
 export function getContent(locale?: string) {
   if (i18nEnabled) {

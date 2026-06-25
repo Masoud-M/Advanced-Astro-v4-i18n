@@ -20,11 +20,11 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 import Select from "@components/Select/Select.astro";
-import { getLocaleFromUrl } from "@js/localeUtils";
 import { useTranslations, getLocalizedPathname } from "@js/translationUtils";
-import { locales } from "@config/siteSettings";
+import { locales } from "src/features/i18n/siteSettingsteSettings";
+import { getSiteContext } from "@js/getSiteContext";
 
-const locale = getLocaleFromUrl(Astro.url);
+const { locale } = await getSiteContext(Astro.url);
 const t = useTranslations(locale);
 
 const options = await Promise.all(
@@ -32,40 +32,40 @@ const options = await Promise.all(
     value: await getLocalizedPathname(l, Astro.url),
     selected: l === locale,
     label: t(`languageSelect.${l}`),
-  }))
+  })),
 );
 ---
 
 {
-	(
-		<starlight-lang-select>
-			<Select
-				icon="mdi--language"
-				label={locale}
-				value={locale}
-				options={options}
-				width="6em"
-			/>
-		</starlight-lang-select>
-	)
+  (
+    <starlight-lang-select>
+      <Select
+        icon="mdi--language"
+        label={locale}
+        value={locale}
+        options={options}
+        width="6em"
+      />
+    </starlight-lang-select>
+  )
 }
 
 <script>
-	import { setLocalePreference } from "@js/localePreference";
+  import { setLocalePreference } from "@js/localePreference";
 
-	class StarlightLanguageSelect extends HTMLElement {
-		constructor() {
-			super();
-			const select = this.querySelector("select");
-			if (select) {
-				select.addEventListener("change", (e) => {
-					if (e.currentTarget instanceof HTMLSelectElement) {
-						setLocalePreference(e.currentTarget.value);
-					window.location.pathname = e.currentTarget.value;
-					}
-				});
-			}
-		}
-	}
-	customElements.define("starlight-lang-select", StarlightLanguageSelect);
+  class StarlightLanguageSelect extends HTMLElement {
+    constructor() {
+      super();
+      const select = this.querySelector("select");
+      if (select) {
+        select.addEventListener("change", (e) => {
+          if (e.currentTarget instanceof HTMLSelectElement) {
+            setLocalePreference(e.currentTarget.value);
+            window.location.pathname = e.currentTarget.value;
+          }
+        });
+      }
+    }
+  }
+  customElements.define("starlight-lang-select", StarlightLanguageSelect);
 </script>
