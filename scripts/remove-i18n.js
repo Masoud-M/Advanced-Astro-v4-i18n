@@ -10,6 +10,24 @@ function removeDirectory(dir) {
     }
 }
 
+function removeFromFile(filePath, patterns) {
+    const fullPath = path.join(root, filePath);
+
+    if (!fs.existsSync(fullPath)) {
+        console.warn(`⚠ Missing: ${filePath}`);
+        return;
+    }
+
+    let content = fs.readFileSync(fullPath, "utf8");
+
+    for (const pattern of patterns) {
+        content = content.replace(pattern, "");
+    }
+
+    fs.writeFileSync(fullPath, content);
+    console.log(`✔ Updated ${filePath}`);
+}
+
 function replaceNoI18n(filePath) {
     const noI18nPath = path.join(root, `${filePath}.no-i18n.ts`);
     const targetPath = path.join(root, `${filePath}.ts`);
@@ -37,5 +55,16 @@ removeDirectory(path.join(root, "src/pages/fr"));
 replaceNoI18n("src/js/getSiteContext");
 replaceNoI18n("src/js/getBlogPosts");
 replaceNoI18n("src/js/routes");
+
+// removes imports and component usage from files after i18n removal
+removeFromFile("src/components/Settings/Settings.astro", [
+    /import\s+TwoLocalesSelect\s+from\s+["']src\/features\/i18n\/LanguageSwitch\/TwoLocalesSelect\.astro["'];?\r?\n/g,
+    /\s*<TwoLocalesSelect\s*\/>\r?\n?/g,
+]);
+
+removeFromFile("src/pages/index.astro", [
+    /import\s+BrowserLanguageRedirect\s+from\s+["']src\/features\/i18n\/LanguageSwitch\/BrowserLanguageRedirect\.astro["'];?\r?\n/g,
+    /\s*<BrowserLanguageRedirect\s*\/>\r?\n?/g,
+]);
 
 console.log("\n✔ i18n removal complete");
