@@ -1,5 +1,3 @@
-// src/js/getBlogPosts.ts
-
 import { getCollection } from "astro:content";
 import { features } from "src/features/featureFlags";
 import { filterCollectionByLanguage } from "src/features/i18n/localeUtils";
