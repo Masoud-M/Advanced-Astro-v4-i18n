@@ -8,8 +8,9 @@ import BlogPreview from "@components/BlogPreview/BlogPreview.astro";
 import Pagination from "@components/Pagination/Pagination.astro";
 
 export const getStaticPaths = (async ({ paginate }) => {
-  const enPosts = await getBlogPosts("fr");
-  const sortedPosts = enPosts.sort(
+  const locale = "fr";
+  const frPosts = await getBlogPosts(locale);
+  const sortedPosts = frPosts.sort(
     (a, b) => new Date(b.data.date).valueOf() - new Date(a.data.date).valueOf(),
   );
 

@@ -7,10 +7,8 @@ import Banner from "@components/Banner/Banner.astro";
 import BlogPreview from "@components/BlogPreview/BlogPreview.astro";
 import Pagination from "@components/Pagination/Pagination.astro";
 
-const siteURL = Astro.url;
-
 export const getStaticPaths = (async ({ paginate }) => {
-  const { locale } = await getSiteContext(siteURL);
+  const locale = "en";
   const enPosts = await getBlogPosts(locale);
   const sortedPosts = enPosts.sort(
     (a, b) => new Date(b.data.date).valueOf() - new Date(a.data.date).valueOf(),
