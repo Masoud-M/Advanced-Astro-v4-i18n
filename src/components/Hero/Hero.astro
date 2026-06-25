@@ -1,8 +1,7 @@
 ---
 import { Picture } from "astro:assets";
 import type { ImageMetadata } from "astro";
-import { getLocaleFromUrl } from "@js/localeUtils";
-import { getContent } from "@js/getContent";
+import { getSiteContext } from "@js/getSiteContext";
 
 interface Props {
   image: ImageMetadata;
@@ -10,8 +9,7 @@ interface Props {
 
 const { image } = Astro.props;
 
-const locale = getLocaleFromUrl(Astro.url);
-const content = await getContent(locale);
+const { content } = await getSiteContext(Astro.url);
 ---
 
 <!-- ============================================ --><!--                    Hero                      --><!-- ============================================ -->

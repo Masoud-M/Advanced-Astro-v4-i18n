@@ -1,14 +1,14 @@
 ---
 import { Image } from "astro:assets";
 import { formatDate } from "@js/utils";
-import { getLocaleFromUrl, getPostSlug } from "@js/localeUtils";
+import { getPostSlug } from "@js/localeUtils";
 import { getLocalizedRoute } from "@js/translationUtils";
-import { getContent } from "@js/getContent";
+import { getSiteContext } from "@js/getSiteContext";
 
 // Receiving incoming props and destructuring them
 const { post } = Astro.props;
-const locale = getLocaleFromUrl(Astro.url);
-const content = await getContent(locale);
+
+const site = await getSiteContext(Astro.url);
 
 const slug = getPostSlug(post);
 const { title, date, description, image, imageAlt } = post.data;
@@ -22,8 +22,8 @@ const { title, date, description, image, imageAlt } = post.data;
     <p class="cs-item-text">
       {description}
     </p>
-    <a href={getLocalizedRoute(locale, `/blog/${slug}`)} class="cs-link">
-      {content.blog.readMore}
+    <a href={getLocalizedRoute(site.locale, `/blog/${slug}`)} class="cs-link">
+      {site.content.blog.readMore}
       <img
         class="cs-arrow"
         loading="lazy"

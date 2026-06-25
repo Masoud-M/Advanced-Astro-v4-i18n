@@ -1,9 +1,8 @@
 ---
 import type { GetStaticPaths } from "astro";
 import { getCollection } from "astro:content";
-import { getLocaleFromUrl, filterCollectionByLanguage, getPostSlug } from "@js/localeUtils";
-import { useTranslations } from "@js/translationUtils";
-import { defaultLocale } from "@config/siteSettings";
+import { filterCollectionByLanguage, getPostSlug } from "@js/localeUtils";
+import { getSiteContext } from "@js/getSiteContext";
 import BaseLayout from "@layouts/BaseLayout.astro";
 import Banner from "@components/Banner/Banner.astro";
 import BlogFullArticle from "@components/BlogFullArticle/BlogFullArticle.astro";
@@ -13,33 +12,32 @@ import { getBlogPostingSchema } from "@js/blogPostingSchema";
 import landingImage from "@assets/images/landing.jpg";
 
 export const getStaticPaths = (async () => {
-	const allPosts = await getCollection("blog");
-	const posts = filterCollectionByLanguage(allPosts, "fr");
+  const allPosts = await getCollection("blog");
+  const posts = filterCollectionByLanguage(allPosts, "fr");
 
-	return posts.map((post) => ({
-		params: {
-			slug: getPostSlug(post),
-		},
-		props: { post },
-	}));
+  return posts.map((post) => ({
+    params: {
+      slug: getPostSlug(post),
+    },
+    props: { post },
+  }));
 }) satisfies GetStaticPaths;
 
 const { post } = Astro.props;
-const locale = getLocaleFromUrl(Astro.url);
-const t = useTranslations(locale);
+const { content, locale } = await getSiteContext(Astro.url);
 
 const postUrl = new URL(Astro.url.pathname, Astro.site).href;
 const blogSchema = getBlogPostingSchema(post, locale, postUrl);
 ---
 
-<BaseLayout
-    title={post.data.title}
-    description={post.data.description}
+<BaseLayout title={post.data.title} description={post.data.description}>
+  <script
+    type="application/ld+json"
+    slot="schema"
+    set:html={JSON.stringify(blogSchema)}
+  />
 
->
-  <script type="application/ld+json" slot="schema" set:html={JSON.stringify(blogSchema)} />
-
-  <Banner title={t("blog:landing")} image={landingImage}/>
+  <Banner title={content.blog.landing} image={landingImage} />
 
   <section class="main-content-wrapper">
     <!--Main content -->

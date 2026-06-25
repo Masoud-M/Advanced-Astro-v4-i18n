@@ -1,13 +1,12 @@
 ---
 import { Picture } from "astro:assets";
-import { getLocaleFromUrl } from "@js/localeUtils";
-import { getContent } from "@js/getContent";
+import { getSiteContext } from "@js/getSiteContext";
+
 import service1 from "@assets/svgs/service1.svg";
 import service2 from "@assets/svgs/service2.svg";
 import service3 from "@assets/svgs/service3.svg";
 
-const locale = getLocaleFromUrl(Astro.url);
-const content = await getContent(locale);
+const { content } = await getSiteContext(Astro.url);
 ---
 
 <!-- ============================================ --><!--                  Services                    --><!-- ============================================ -->

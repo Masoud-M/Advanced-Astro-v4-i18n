@@ -1,12 +1,10 @@
 ---
+import { getSiteContext } from "@js/getSiteContext";
 import { Image } from "astro:assets";
-import { getLocaleFromUrl } from "@js/localeUtils";
-import { getContent } from "@js/getContent";
 import starsSvg from "@assets/svgs/stars.svg";
 import profileSvg from "@assets/svgs/profile.svg";
 
-const locale = getLocaleFromUrl(Astro.url);
-const content = await getContent(locale);
+const { content } = await getSiteContext(Astro.url);
 
 const testimonials = content.reviews.testimonials;
 ---

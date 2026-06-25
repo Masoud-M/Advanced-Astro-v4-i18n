@@ -7,13 +7,11 @@ import SideBySideReverse from "@components/SideBySide/SideBySideReverse.astro";
 import Gallery from "@components/Gallery/Gallery.astro";
 import Testimonials from "@components/Testimonials/Testimonials.astro";
 import CTA from "@components/CTA/CTA.astro";
-import { getLocaleFromUrl } from "@js/localeUtils";
 import BrowserLanguageRedirect from "@components/LanguageSwitch/BrowserLanguageRedirect.astro";
 import landingImage from "@assets/images/hero.jpg";
-import { getContent } from "@js/getContent";
+import { getSiteContext } from "@js/getSiteContext";
 
-const locale = getLocaleFromUrl(Astro.url);
-const content = await getContent(locale);
+const { content } = await getSiteContext(Astro.url);
 ---
 
 <BrowserLanguageRedirect />

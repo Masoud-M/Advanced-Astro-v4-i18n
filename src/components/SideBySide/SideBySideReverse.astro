@@ -1,12 +1,10 @@
 ---
 import { Picture } from "astro:assets";
-import { getLocaleFromUrl } from "@js/localeUtils";
+import { getSiteContext } from "@js/getSiteContext";
 import construction from "@assets/images/construction.jpg";
 import cabinets2 from "@assets/images/CTA/cabinets2.jpg";
-import { getContent } from "@js/getContent";
 
-const locale = getLocaleFromUrl(Astro.url);
-const content = await getContent(locale);
+const { content } = await getSiteContext(Astro.url);
 ---
 
 <!-- ============================================ --><!--            Extra Content To Rank             --><!-- ============================================ -->

@@ -3,13 +3,11 @@ import { Image } from "astro:assets";
 import { BUSINESS } from "@data/client";
 import navData from "@data/navData.json";
 import { getCurrentYear } from "@js/utils";
-import { getLocaleFromUrl } from "@js/localeUtils";
 import { getLocalizedRoute } from "@js/translationUtils";
 import logoWhite from "@assets/svgs/logo-white.svg";
-import { getContent } from "@js/getContent";
+import { getSiteContext } from "@js/getSiteContext";
 
-const locale = getLocaleFromUrl(Astro.url);
-const content = await getContent(locale);
+const { locale, content } = await getSiteContext(Astro.url);
 
 const currentYear = getCurrentYear();
 ---

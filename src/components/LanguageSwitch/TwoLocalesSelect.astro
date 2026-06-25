@@ -1,9 +1,9 @@
 ---
-import { getLocaleFromUrl } from "@js/localeUtils";
 import { useTranslations, getLocalizedPathname } from "@js/translationUtils";
 import { locales, languageSwitcherMap } from "@config/siteSettings";
+import { getSiteContext } from "@js/getSiteContext";
 
-const locale = getLocaleFromUrl(Astro.url);
+const { locale } = await getSiteContext(Astro.url);
 const t = useTranslations(locale);
 const uid = Math.random().toString(36).slice(2, 7);
 
@@ -13,7 +13,7 @@ const languageOptions = await Promise.all(
     href: await getLocalizedPathname(l, Astro.url),
     label: t(`languageSelect.${l}`),
     code: languageSwitcherMap[l],
-  }))
+  })),
 );
 ---
 
@@ -75,7 +75,7 @@ const languageOptions = await Promise.all(
   class LanguageToggle extends HTMLElement {
     connectedCallback() {
       const radios = Array.from(
-        this.querySelectorAll(".language-check")
+        this.querySelectorAll(".language-check"),
       ) as HTMLInputElement[];
       const statusElement = this.querySelector(".language-status");
 
@@ -103,7 +103,7 @@ const languageOptions = await Promise.all(
           if (radio.checked) {
             const labelText =
               radio.nextElementSibling?.querySelector(
-                ".visually-hidden"
+                ".visually-hidden",
               )?.textContent;
 
             if (statusElement && labelText)

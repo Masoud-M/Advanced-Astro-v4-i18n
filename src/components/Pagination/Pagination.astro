@@ -1,10 +1,8 @@
 ---
-import { getLocaleFromUrl } from "@js/localeUtils";
-import { getContent } from "@js/getContent";
+import { getSiteContext } from "@js/getSiteContext";
 import PaginationButton from "./PaginationButton.astro";
 
-const locale = getLocaleFromUrl(Astro.url);
-const content = await getContent(locale);
+const { content } = await getSiteContext(Astro.url);
 
 // More info on all the Page props: https://docs.astro.build/en/guides/routing/#the-page-prop
 const { page } = Astro.props;

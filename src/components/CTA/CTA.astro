@@ -1,10 +1,8 @@
 ---
-import { getLocaleFromUrl } from "@js/localeUtils";
 import { getLocalizedRoute } from "@js/translationUtils";
-import { getContent } from "@js/getContent";
+import { getSiteContext } from "@js/getSiteContext";
 
-const locale = getLocaleFromUrl(Astro.url);
-const content = await getContent(locale);
+const { locale, content } = await getSiteContext(Astro.url);
 
 import CSPicture from "@components/CSPicture/CSPicture.astro";
 import ctaImage from "@assets/images/CTA/cabinets2.jpg";

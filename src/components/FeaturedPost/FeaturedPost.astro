@@ -2,12 +2,12 @@
 import { getCollection } from "astro:content";
 import { Picture } from "astro:assets";
 import { formatDate } from "@js/utils";
-import { getLocaleFromUrl, getPostSlug } from "@js/localeUtils";
+import { getPostSlug } from "@js/localeUtils";
 import { getLocalizedRoute } from "@js/translationUtils";
-import { getContent } from "@js/getContent";
 
-const locale = getLocaleFromUrl(Astro.url);
-const content = await getContent(locale);
+import { getSiteContext } from "@js/getSiteContext";
+
+const { locale, content } = await getSiteContext(Astro.url);
 
 const featuredPosts = await getCollection("blog", ({ id, data }) => {
   return id.startsWith(locale) && data.featured === true;

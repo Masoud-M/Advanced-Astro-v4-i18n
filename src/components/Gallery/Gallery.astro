@@ -1,7 +1,7 @@
 ---
 import { Picture } from "astro:assets";
-import { getLocaleFromUrl } from "@js/localeUtils";
-import { getContent } from "@js/getContent";
+import { getSiteContext } from "@js/getSiteContext";
+
 import port1 from "@assets/images/portfolio/port1.jpg";
 import port2 from "@assets/images/portfolio/port2.jpg";
 import port3 from "@assets/images/portfolio/port3.jpg";
@@ -12,8 +12,7 @@ import port7 from "@assets/images/portfolio/port7.jpg";
 import port8 from "@assets/images/portfolio/port8.jpg";
 import port9 from "@assets/images/portfolio/port9.jpg";
 
-const locale = getLocaleFromUrl(Astro.url);
-const content = await getContent(locale);
+const { content } = await getSiteContext(Astro.url);
 ---
 
 <!-- ============================================ --><!--                   Gallery                    --><!-- ============================================ -->
