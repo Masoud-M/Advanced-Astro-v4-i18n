@@ -43,8 +43,9 @@ function moveToDeletedBackup(targetPath) {
     // Create target directory structure inside scripts/deleted
     fs.mkdirSync(path.dirname(destinationPath), { recursive: true });
 
-    // Move file/folder
-    fs.renameSync(targetPath, destinationPath);
+    // Use copy + delete strategy to avoid Windows EPERM file-locking constraints
+    fs.cpSync(targetPath, destinationPath, { recursive: true });
+    fs.rmSync(targetPath, { recursive: true, force: true });
 }
 
 function removeDirectory(dir) {
