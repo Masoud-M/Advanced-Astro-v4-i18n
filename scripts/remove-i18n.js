@@ -56,6 +56,55 @@ function moveToDeletedBackup(targetPath) {
     fs.rmSync(targetPath, { recursive: true, force: true });
 }
 
+function keepEnglishOnly(value) {
+    if (Array.isArray(value)) {
+        return value.map(keepEnglishOnly);
+    }
+
+    if (value && typeof value === "object") {
+        const keys = Object.keys(value);
+
+        // Localized object (en, fr, de, etc.)
+        if (keys.includes("en")) {
+            const localeKeys = keys.filter((k) => /^[a-z]{2}(-[A-Z]{2})?$/.test(k));
+
+            if (localeKeys.length > 1 || (localeKeys.length === 1 && localeKeys[0] === "en")) {
+                return { en: value.en };
+            }
+        }
+
+        const result = {};
+
+        for (const [key, val] of Object.entries(value)) {
+            result[key] = keepEnglishOnly(val);
+        }
+
+        return result;
+    }
+
+    return value;
+}
+
+function cleanupNavData() {
+    const navDataPath = path.join(root, "src", "data", "navData.json");
+
+    if (!fs.existsSync(navDataPath)) {
+        return;
+    }
+
+    const navData = JSON.parse(fs.readFileSync(navDataPath, "utf8"));
+
+    const updated = keepEnglishOnly(navData);
+
+    fs.writeFileSync(
+        navDataPath,
+        JSON.stringify(updated, null, 2) + "\n",
+        "utf8"
+    );
+
+    console.log("✔ Removed non-English localized values from navData.json");
+}
+
 function removeDirectory(dir) {
     if (fs.existsSync(dir)) {
         const displayPath = path.relative(root, dir);
@@ -121,6 +170,7 @@ async function runRemoval() {
     removeDirectory(path.join(root, "src/features/i18n"));
     removeDirectory(path.join(root, "src/pages/fr"));
     removeDirectory(path.join(root, "src/locales/fr"));
+    cleanupNavData();
 
     // 3. Replace fallback utility files (and backup the old ones)
     replaceNoI18n("src/js/getSiteContext");
