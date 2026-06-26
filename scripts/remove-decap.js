@@ -128,11 +128,33 @@ async function cleanupNavData() {
 		await fs.access(navDataPath);
 		const content = await fs.readFile(navDataPath, "utf-8");
 		const navData = JSON.parse(content);
-		const filtered = navData.filter(item => item.key !== "Blog" && item.url !== "/blog/");
+
+		const filtered = navData.filter(item => {
+			// 1. Check the item key safely (case-insensitive)
+			const isBlogKey = item.key && String(item.key).toLowerCase() === "blog";
+
+			// 2. Check the item URL safely, walking through strings or deep object values
+			let isBlogUrl = false;
+			if (item.url) {
+				if (typeof item.url === "string") {
+					isBlogUrl = item.url.replace(/\/$/, "") === "/blog";
+				} else if (typeof item.url === "object") {
+					// Check every value inside the localization object (e.g., item.url.en, item.url.fr, etc.)
+					isBlogUrl = Object.values(item.url).some(
+						val => typeof val === "string" && val.replace(/\/$/, "") === "/blog"
+					);
+				}
+			}
+
+			// Keep the item only if it's NOT related to the blog
+			return !isBlogKey && !isBlogUrl;
+		});
 
 		await fs.writeFile(navDataPath, JSON.stringify(filtered, null, 2) + "\n", "utf-8");
-		console.log("✅ Removed Blog links from navigation data config.");
-	} catch { }
+		console.log("✅ Successfully removed Blog entries from navigation configurations.");
+	} catch (error) {
+		console.error(`❌ Error updating navData.json: ${error.message}`);
+	}
 }
 
 async function removeDecapCMS() {
