@@ -1,12 +1,16 @@
 import { defaultLocale } from "../features/i18n/config";
 
 function normalizePath(path: string) {
-  if (!path.startsWith("/")) path = `/${path}`;
+  // 1. Force it to be a string or fallback to empty string if it's null/undefined
+  const safePath = String(path || "");
 
-  // ensure trailing slash (Astro: trailingSlash: "always")
-  if (!path.endsWith("/")) path = `${path}/`;
+  // 2. Use the safe string for your checks
+  let result = safePath;
+  if (!result.startsWith("/")) result = `/${result}`;
 
-  return path;
+  if (!result.endsWith("/")) result = `${result}/`;
+
+  return result;
 }
 
 export function getRoute(locale: string | undefined, path: string) {

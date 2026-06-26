@@ -1,15 +1,15 @@
 ---
 import type { GetStaticPaths } from "astro";
-import { getPostSlug } from "@js/blogUtils";
+import { getPostSlug } from "src/features/decapCMS/core/blogUtils";
 import { getSiteContext } from "@js/getSiteContext";
 import BaseLayout from "@layouts/BaseLayout.astro";
-import Banner from "@components/Banner/Banner.astro";
-import BlogFullArticle from "@components/BlogFullArticle/BlogFullArticle.astro";
-import FeaturedPost from "@components/FeaturedPost/FeaturedPost.astro";
-import { getBlogPostingSchema } from "@js/blogPostingSchema";
+import Banner from "src/features/demo/Banner.astro";
+import BlogFullArticle from "src/features/decapCMS/BlogFullArticle.astro";
+import FeaturedPost from "src/features/decapCMS/FeaturedPost.astro";
+import { getBlogPostingSchema } from "src/features/decapCMS/core/blogPostingSchema";
 
 import landingImage from "@assets/images/landing.jpg";
-import { getBlogPosts } from "@js/getBlogPosts";
+import { getBlogPosts } from "src/features/decapCMS/core/getBlogPosts";
 
 export const getStaticPaths = (async () => {
   const locale = "fr";

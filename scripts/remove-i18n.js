@@ -3,6 +3,10 @@
 import fs from "fs";
 import path from "path";
 import readline from "readline";
+import {
+    checkFeatureFlagBeforeRun,
+    disableFeatureFlag,
+} from "./utils/feature-flags.js";
 
 const root = process.cwd();
 const backupRootDir = path.join(root, "scripts/deleted");
@@ -11,6 +15,10 @@ const backupRootDir = path.join(root, "scripts/deleted");
 const markerPath = path.join(root, ".i18n-removed");
 if (fs.existsSync(markerPath)) {
     console.log("i18n has already been removed (.i18n-removed marker exists).");
+    process.exit(0);
+}
+
+if (checkFeatureFlagBeforeRun(root, "i18n", "i18n")) {
     process.exit(0);
 }
 
@@ -43,8 +51,58 @@ function moveToDeletedBackup(targetPath) {
     // Create target directory structure inside scripts/deleted
     fs.mkdirSync(path.dirname(destinationPath), { recursive: true });
 
-    // Move file/folder
-    fs.renameSync(targetPath, destinationPath);
+    // Use copy + delete strategy to avoid Windows EPERM file-locking constraints
+    fs.cpSync(targetPath, destinationPath, { recursive: true });
+    fs.rmSync(targetPath, { recursive: true, force: true });
+}
+
+function keepEnglishOnly(value) {
+    if (Array.isArray(value)) {
+        return value.map(keepEnglishOnly);
+    }
+
+    if (value && typeof value === "object") {
+        const keys = Object.keys(value);
+
+        // Localized object (en, fr, de, etc.)
+        if (keys.includes("en")) {
+            const localeKeys = keys.filter((k) => /^[a-z]{2}(-[A-Z]{2})?$/.test(k));
+
+            if (localeKeys.length > 1 || (localeKeys.length === 1 && localeKeys[0] === "en")) {
+                return { en: value.en };
+            }
+        }
+
+        const result = {};
+
+        for (const [key, val] of Object.entries(value)) {
+            result[key] = keepEnglishOnly(val);
+        }
+
+        return result;
+    }
+
+    return value;
+}
+
+function cleanupNavData() {
+    const navDataPath = path.join(root, "src", "data", "navData.json");
+
+    if (!fs.existsSync(navDataPath)) {
+        return;
+    }
+
+    const navData = JSON.parse(fs.readFileSync(navDataPath, "utf8"));
+
+    const updated = keepEnglishOnly(navData);
+
+    fs.writeFileSync(
+        navDataPath,
+        JSON.stringify(updated, null, 2) + "\n",
+        "utf8"
+    );
+
+    console.log("✔ Removed non-English localized values from navData.json");
 }
 
 function removeDirectory(dir) {
@@ -99,40 +157,24 @@ function replaceNoI18n(filePath) {
     );
 }
 
-function updateFeatureFlags() {
-    const flagsPath = path.join(root, "src/features/featuresflags.ts");
 
-    if (!fs.existsSync(flagsPath)) {
-        console.warn(`⚠ Missing feature flags file: src/features/featuresflags.ts`);
-        return;
-    }
 
-    let content = fs.readFileSync(flagsPath, "utf8");
-
-    // Matches i18n: true (handles optional spaces/quotes around key and values)
-    const updatedContent = content.replace(/(i18n\s*:\s*)true/g, "$1false");
-
-    if (content !== updatedContent) {
-        fs.writeFileSync(flagsPath, updatedContent);
-        console.log(`✔ Disabled i18n in src/features/featuresflags.ts`);
-    }
-}
-
-// ─── Main Execution ───────────────────────────────────────────────────────────
-function runRemoval() {
+// ─── Main Execution ─────────────────────────────────────────────────────────── 
+async function runRemoval() {
     console.log("\nStarting i18n removal process...\n");
 
     // 1. Flip i18n flag to false
-    updateFeatureFlags();
+    await disableFeatureFlag(root, "i18n");
 
     // 2. Remove (Move) i18n-owned directories
     removeDirectory(path.join(root, "src/features/i18n"));
     removeDirectory(path.join(root, "src/pages/fr"));
     removeDirectory(path.join(root, "src/locales/fr"));
+    cleanupNavData();
 
     // 3. Replace fallback utility files (and backup the old ones)
     replaceNoI18n("src/js/getSiteContext");
-    replaceNoI18n("src/js/getBlogPosts");
+    replaceNoI18n("src/features/decapCMS/core/getBlogPosts");
     replaceNoI18n("src/js/routes");
 
     // 4. Clean up imports and component usages

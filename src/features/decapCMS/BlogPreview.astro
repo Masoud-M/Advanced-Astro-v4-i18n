@@ -2,8 +2,8 @@
 import { Image } from "astro:assets";
 import { formatDate } from "@js/utils";
 import { getSiteContext } from "@js/getSiteContext";
-import { getPostSlug } from "@js/blogUtils";
 import { getRoute } from "@js/routes";
+import { getPostSlug } from "./core/blogUtils";
 
 // Receiving incoming props and destructuring them
 const { post } = Astro.props;

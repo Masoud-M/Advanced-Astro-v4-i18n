@@ -1,5 +1,5 @@
 import { loadTranslations } from "./loadTranslations";
-import { features } from "../features/featureFlags";
+import { features } from "../features/featuresFlags";
 
 export const i18nEnabled = features.i18n;
 
