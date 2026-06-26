@@ -178,6 +178,14 @@ async function removeDecapCMS() {
 		await moveItem(decapCMSFeaturePath, join(destinationDir, "src", "features", "decapCMS"), "Decap CMS Components feature folder");
 		await moveItem(blogContentPath, join(destinationDir, "src", "content", "blog"), "Markdown blog content directory");
 
+		// Remove the dynamic route translations helper if it exists
+		const dynamicRouteTranslationsPath = join(root, "src", "features", "i18n", "collections", "generateDynamicRouteTranslations.ts");
+		await moveItem(
+			dynamicRouteTranslationsPath,
+			join(destinationDir, "src", "features", "i18n", "collections", "generateDynamicRouteTranslations.ts"),
+			"Dynamic Route Translations handler"
+		);
+
 		// Remove dedicated layout locales translations
 		await moveItem(blogLocaleEn, join(destinationDir, "src", "locales", "en", "blog.json"), "English Blog Locale definitions");
 		await moveItem(blogLocaleFr, join(destinationDir, "src", "locales", "fr", "blog.json"), "French Blog Locale definitions");
