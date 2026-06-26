@@ -2,7 +2,7 @@ import { getCollection } from "astro:content";
 import type { Locale } from "../config";
 import { locales, defaultLocale } from "../config";
 import { routeTranslations, localizedCollections } from "../config";
-import { getPostSlug } from "../../../js/blogUtils";
+import { getPostSlug } from "../../decapCMS/core/blogUtils";
 
 let cache: Record<string, Record<string, string>> | null = null;
 
