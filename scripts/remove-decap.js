@@ -22,6 +22,45 @@ const blogContentPath = join(root, "src", "content", "blog");
 const blogLocaleEn = join(root, "src", "locales", "en", "blog.json");
 const blogLocaleFr = join(root, "src", "locales", "fr", "blog.json");
 
+
+async function updateFeatureFlags() {
+	console.log("\n Updating src/features/featuresflags.ts...");
+	const flagsPath = join(root, "src", "features", "featuresflags.ts");
+
+	try {
+		await fs.access(flagsPath);
+		let content = await fs.readFile(flagsPath, "utf-8");
+
+		// Strictly target and disable only the cms flag
+		let updatedContent = content.replace(/(cms\s*:\s*)true/g, "$1false");
+
+		if (content !== updatedContent) {
+			await fs.writeFile(flagsPath, updatedContent, "utf-8");
+			console.log(`✔ Disabled cms flag in src/features/featuresflags.ts`);
+		} else {
+			console.log("cms feature flag was already set to false.");
+		}
+	} catch (error) {
+		if (error.code === "ENOENT") {
+			console.warn(`⚠ Missing feature flags file: src/features/featuresflags.ts`);
+		} else {
+			console.error(`❌ Error updating feature flags: ${error.message}`);
+		}
+	}
+}
+
+function checkFeatureFlagsBeforeRun() {
+	const flagsPath = join(root, "src", "features", "featuresflags.ts");
+	try {
+		const content = readFileSync(flagsPath, "utf-8");
+		const cmsMatch = content.match(/cms\s*:\s*(true|false)/);
+
+		if (cmsMatch?.[1] === "false") {
+			console.log("Feature flags indicate Decap CMS is already disabled.\n");
+		}
+	} catch { }
+}
+
 // Dynamic blog routing locations based on your i18n structure
 function resolveBlogPagesPaths() {
 	const i18n = readI18nConfig(root);
@@ -209,6 +248,7 @@ async function removeDecapCMS() {
 		console.log("\n✅ Cleaned up tracking definitions inside astro.config.mjs");
 	} catch { }
 
+	await updateFeatureFlags();
 	await scanForReferences(clearBlog);
 	console.log("\n🎉 Decommission operations successfully completed!");
 }
