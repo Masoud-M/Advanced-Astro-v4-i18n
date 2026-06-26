@@ -1,5 +1,5 @@
 import { getCollection } from "astro:content";
-import { features } from "src/features/featureFlags";
+import { features } from "src/features/featuresFlags";
 import { filterCollectionByLanguage } from "src/features/i18n/localeUtils";
 
 export async function getBlogPosts(locale) {
