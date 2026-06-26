@@ -38,9 +38,9 @@ function resolveBlogPagesPaths() {
 
 	const nonDefaultBlogDirs = i18n
 		? i18n.locales
-			.filter((l) => l !== i18n.defaultLocale)
-			.map((l) => ({ locale: l, path: join(root, "src", "pages", l, "blog") }))
-		: [{ locale: "fr", path: join(root, "src", "pages", l, "blog") }]; // fall back to your fr layout structure
+			.filter((localeItem) => localeItem !== i18n.defaultLocale)
+			.map((localeItem) => ({ locale: localeItem, path: join(root, "src", "pages", localeItem, "blog") }))
+		: [{ locale: "fr", path: join(root, "src", "pages", "fr", "blog") }]; // Fixed: explicitly used "fr" string literal here
 
 	return { defaultBlogDir, nonDefaultBlogDirs };
 }
