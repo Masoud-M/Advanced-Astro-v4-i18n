@@ -133,7 +133,7 @@ function runRemoval() {
 
     // 3. Replace fallback utility files (and backup the old ones)
     replaceNoI18n("src/js/getSiteContext");
-    replaceNoI18n("src/features/decapCMS/getBlogPosts");
+    replaceNoI18n("src/features/decapCMS/core/getBlogPosts");
     replaceNoI18n("src/js/routes");
 
     // 4. Clean up imports and component usages
