@@ -151,11 +151,11 @@ function runRemoval() {
 	console.log("\nRemoving dark mode support...\n");
 
 	// ── Remove DarkMode components ────────────────────────────────────────────
-	remove("src/components/DarkMode");
+	remove("src/features/darkmode");
 
 	// ── Update Settings to remove ThemeSelect import and usage ───────────────
 	const settingsPath = "src/components/Settings/Settings.astro";
-	replaceRegex(settingsPath, /import ThemeSelect from "@components\/DarkMode\/ThemeSelect\.astro";\r?\n/, "");
+	replaceRegex(settingsPath, /import ThemeSelect from "@components\/features\/darkmode\/ThemeSelect\.astro";\r?\n/, "");
 	replaceRegex(settingsPath, /\t<ThemeSelect \/>\r?\n/, "");
 
 	// ── Remove dark mode inline scripts from BaseLayout ──────────────────────
