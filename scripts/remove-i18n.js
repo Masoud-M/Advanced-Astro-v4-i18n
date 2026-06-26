@@ -3,6 +3,10 @@
 import fs from "fs";
 import path from "path";
 import readline from "readline";
+import {
+    checkFeatureFlagBeforeRun,
+    disableFeatureFlag,
+} from "./utils/feature-flags.js";
 
 const root = process.cwd();
 const backupRootDir = path.join(root, "scripts/deleted");
@@ -11,6 +15,10 @@ const backupRootDir = path.join(root, "scripts/deleted");
 const markerPath = path.join(root, ".i18n-removed");
 if (fs.existsSync(markerPath)) {
     console.log("i18n has already been removed (.i18n-removed marker exists).");
+    process.exit(0);
+}
+
+if (checkFeatureFlagBeforeRun(root, "i18n", "i18n")) {
     process.exit(0);
 }
 
@@ -100,31 +108,14 @@ function replaceNoI18n(filePath) {
     );
 }
 
-function updateFeatureFlags() {
-    const flagsPath = path.join(root, "src/features/featuresflags.ts");
 
-    if (!fs.existsSync(flagsPath)) {
-        console.warn(`⚠ Missing feature flags file: src/features/featuresflags.ts`);
-        return;
-    }
 
-    let content = fs.readFileSync(flagsPath, "utf8");
-
-    // Matches i18n: true (handles optional spaces/quotes around key and values)
-    const updatedContent = content.replace(/(i18n\s*:\s*)true/g, "$1false");
-
-    if (content !== updatedContent) {
-        fs.writeFileSync(flagsPath, updatedContent);
-        console.log(`✔ Disabled i18n in src/features/featuresflags.ts`);
-    }
-}
-
-// ─── Main Execution ───────────────────────────────────────────────────────────
-function runRemoval() {
+// ─── Main Execution ─────────────────────────────────────────────────────────── 
+async function runRemoval() {
     console.log("\nStarting i18n removal process...\n");
 
     // 1. Flip i18n flag to false
-    updateFeatureFlags();
+    await disableFeatureFlag(root, "i18n");
 
     // 2. Remove (Move) i18n-owned directories
     removeDirectory(path.join(root, "src/features/i18n"));
