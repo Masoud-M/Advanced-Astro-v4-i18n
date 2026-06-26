@@ -155,7 +155,7 @@ function runRemoval() {
 
 	// ── Update Settings to remove ThemeSelect import and usage ───────────────
 	const settingsPath = "src/components/Settings/Settings.astro";
-	replaceRegex(settingsPath, /import ThemeSelect from "@components\/features\/darkmode\/ThemeSelect\.astro";\r?\n/, "");
+	replaceRegex(settingsPath, /import ThemeSelect from "src\/features\/darkmode\/ThemeSelect\.astro";\r?\n/, "");
 	replaceRegex(settingsPath, /\t<ThemeSelect \/>\r?\n/, "");
 
 	// ── Remove dark mode inline scripts from BaseLayout ──────────────────────
