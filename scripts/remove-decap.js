@@ -12,8 +12,11 @@ import {
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const root = process.env.SCRIPT_ROOT ?? join(__dirname, "..");
 
-await updateFeatureFlags();
-await disableFeatureFlag(root, "cms");
+
+if (checkFeatureFlagBeforeRun(root, "cms", "Decap CMS")) {
+	process.exit(0);
+}
+
 
 // Decap CMS file and directory paths
 const astroConfigPath = join(root, "astro.config.mjs");
@@ -221,7 +224,7 @@ async function removeDecapCMS() {
 		console.log("\n✅ Cleaned up tracking definitions inside astro.config.mjs");
 	} catch { }
 
-	await updateFeatureFlags();
+	await disableFeatureFlag(root, "cms");
 	await scanForReferences(clearBlog);
 	console.log("\n🎉 Decommission operations successfully completed!");
 }
