@@ -33,31 +33,46 @@ function readClientData() {
 }
 
 
-function registerNavItem(slug, labels) {
-	const navPath = join(root, "src", "data", "navData.json");
+function registerNavItem(slugMap, labels) {
+	const navPath = join(
+		root,
+		"src",
+		"data",
+		"navData.json"
+	);
 
-	if (!existsSync(navPath)) return "missing";
+	if (!existsSync(navPath)) {
+		return "missing";
+	}
 
 	const nav = JSON.parse(
 		readFileSync(navPath, "utf8")
 	);
 
-	if (nav.some(item => item.key === slug)) {
+	if (nav.some(item => item.key === slugMap.en)) {
 		return "skipped";
 	}
 
 	nav.push({
-		key: slug,
-		url: `/${slug}`,
+		key: slugMap.en,
+		urls: Object.fromEntries(
+			Object.entries(slugMap)
+				.map(([locale, slug]) => [
+					locale,
+					`/${slug}`
+				])
+		),
 		label: labels,
 		children: []
 	});
+
 
 	writeFileSync(
 		navPath,
 		JSON.stringify(nav, null, "\t") + "\n",
 		"utf8"
 	);
+
 
 	return "registered";
 }
@@ -248,11 +263,11 @@ async function main() {
 		}
 
 		// ── navData.json ───────────────────────────────────────
-		const navStatus = registerNavItem(
-			defaultSlug,
+		registerNavItem(
+			slugMap,
 			{
-				en: titleMap.en,
-				fr: titleMap.fr ?? titleMap.en
+				en: titleMap[defaultLocale],
+				fr: titleMap.fr ?? titleMap[defaultLocale]
 			}
 		);
 
