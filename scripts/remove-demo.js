@@ -156,9 +156,9 @@ async function removeDemoReferences(componentNames) {
 	);
 
 	const componentRegex = new RegExp(
-		String.raw`^\s*<(${componentNames
+		String.raw`^\s*<(?:${componentNames
 			.map(escapeRegex)
-			.join("|")})\b[\s\S]*?(?:\/>|<\/\1>)\s*\r?\n?`,
+			.join("|")})\b[\s\S]*?\/>\s*\r?\n?`,
 		"gm"
 	);
 
