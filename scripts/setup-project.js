@@ -4,6 +4,13 @@ import { readFileSync } from "fs";
 import { join } from "path";
 import readline from "readline";
 import { spawn } from "child_process";
+import { checkFeatureFlagBeforeRun, disableFeatureFlag } from "./utils/feature-flags";
+
+
+// Guard block. If the value of setup inside the featuresFlags.ts is set to false. It means this script has been run before and can't be used again.
+if (checkFeatureFlagBeforeRun(root, "setup", "project setup")) {
+    process.exit(0);
+}
 
 const root = process.cwd();
 
@@ -11,11 +18,11 @@ const featuresFile = join(
     root,
     "src",
     "features",
-    "featuresflags.ts"
+    "featuresFlags.ts"
 );
 
 /**
- * Reads the current feature flags from featuresflags.ts
+ * Reads the current feature flags from featuresFlags.ts
  */
 function readFeatureFlags() {
     const content = readFileSync(featuresFile, "utf8");
@@ -163,6 +170,8 @@ async function main() {
     console.log("✅ Project setup complete.");
     console.log("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n");
 }
+
+await disableFeatureFlag(root, "setup");
 
 main().catch((error) => {
     console.error("\nFatal error:");
