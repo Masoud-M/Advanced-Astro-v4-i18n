@@ -259,8 +259,7 @@ async function main() {
 		if (navStatus === "registered") {
 			console.log("Registered in navData.json");
 		}
-
-		// routeTranslations.ts
+		// ── routeTranslations.ts ───────────────────────────────────────────────────
 		if (i18nEnabled) {
 			const rtStatus = registerInRouteTranslations(
 				defaultSlug,
@@ -269,17 +268,11 @@ async function main() {
 
 			if (rtStatus === "registered") {
 				console.log("Registered in routeTranslations.ts");
-			}
-			else if (rtStatus === "skipped") {
+			} else if (rtStatus === "skipped") {
 				console.log(
 					`Skipped routeTranslations.ts — "${defaultSlug}" already registered`
 				);
 			}
-		}
-		if (rtStatus === "registered") {
-			console.log(`Registered in routeTranslations.ts`);
-		} else if (rtStatus === "skipped") {
-			console.log(`Skipped routeTranslations.ts — "${defaultSlug}" already registered`);
 		}
 	}
 
