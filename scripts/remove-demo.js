@@ -150,17 +150,14 @@ async function removeDemoReferences(componentNames) {
 
 	let updated = 0;
 
-	const importRegex = new RegExp(
-		String.raw`^import\s+.+?\s+from\s+["'][^"']*features\/demo\/[^"']+["'];?\r?\n`,
-		"gm"
-	);
-
-	const componentRegex = new RegExp(
-		String.raw`^\s*<(?:${componentNames
-			.map(escapeRegex)
-			.join("|")})\b[\s\S]*?\/>\s*\r?\n?`,
-		"gm"
-	);
+	const demoAssets = [
+		"hero",
+		"hero-m",
+		"landing",
+		"construction",
+		"portfolio",
+		"CTA",
+	];
 
 	for (const file of files) {
 		if (!file.endsWith(".astro")) continue;
@@ -168,17 +165,39 @@ async function removeDemoReferences(componentNames) {
 		let source = await fs.readFile(file, "utf8");
 		const original = source;
 
-		source = source.replace(importRegex, "");
-		source = source.replace(componentRegex, "");
+		// Remove imports and usages for every discovered component
+		for (const component of componentNames) {
+
+			const importRegex = new RegExp(
+				`^\\s*import\\s+${escapeRegex(component)}\\s+from\\s+["'][^"']+["'];?\\r?\\n`,
+				"gm"
+			);
+
+			const usageRegex = new RegExp(
+				`^\\s*<${escapeRegex(component)}\\b[\\s\\S]*?\\/>\\s*\\r?\\n?`,
+				"gm"
+			);
+
+			source = source.replace(importRegex, "");
+			source = source.replace(usageRegex, "");
+		}
+
+		// Remove demo asset imports
+		for (const asset of demoAssets) {
+			const assetRegex = new RegExp(
+				`^\\s*import\\s+.*?from\\s+["'][^"']*${escapeRegex(asset)}[^"']*["'];?\\r?\\n`,
+				"gm"
+			);
+
+			source = source.replace(assetRegex, "");
+		}
+
 		source = source.replace(/\n{3,}/g, "\n\n");
 
 		if (source !== original) {
 			await fs.writeFile(file, source, "utf8");
 			updated++;
-
-			console.log(
-				`   cleaned ${relative(root, file)}`
-			);
+			console.log(`   cleaned ${relative(root, file)}`);
 		}
 	}
 
