@@ -1,22 +1,32 @@
-import type { Locale } from "./config.ts";
+import navData from "@data/navData.json";
+import type { Locale } from "../../data/i18nConfig.ts";
 
-export const routeTranslations: Record<Locale, Record<string, string>> = {
-  en: {
-    about: "about",
-    projects: "projects",
-    "project-1": "project-1",
-    "project-2": "project-2",
-    reviews: "reviews",
-  },
-  fr: {
-    about: "a-propos",
-    projects: "projets",
-    "project-1": "projet-1",
-    "project-2": "projet-2",
-    reviews: "avis",
-  },
+type NavItem = {
+  key: string;
+  urls: Record<string, string>;
+  children?: NavItem[];
 };
 
-export const localizedCollections = {
-  blog: { en: "blog", fr: "blog" },
-} as const;
+function buildRoutes(
+  items: NavItem[],
+  result: Record<string, Record<string, string>> = {},
+) {
+  for (const item of items) {
+    for (const [locale, url] of Object.entries(item.urls)) {
+      result[locale] ??= {};
+
+      result[locale][item.key] = url.replace(/^\//, "");
+    }
+
+    if (item.children?.length) {
+      buildRoutes(item.children, result);
+    }
+  }
+
+  return result;
+}
+
+export const routeTranslations: Record<
+  Locale,
+  Record<string, string>
+> = buildRoutes(navData as NavItem[]);

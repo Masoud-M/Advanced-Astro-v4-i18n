@@ -1,19 +1,7 @@
 [
   {
-    "key": "home",
-    "url": {
-      "en": "/",
-      "fr": "/"
-    },
-    "label": {
-      "en": "Home",
-      "fr": "Accueil"
-    },
-    "children": []
-  },
-  {
     "key": "about",
-    "url": {
+    "urls": {
       "en": "/about",
       "fr": "/a-propos"
     },
@@ -25,50 +13,44 @@
   },
   {
     "key": "projects",
+    "urls": {
+      "en": "/projects",
+      "fr": "/projets"
+    },
     "label": {
       "en": "Projects",
-      "fr": "Portfolio"
+      "fr": "Projets"
     },
     "children": [
       {
         "key": "project-1",
-        "url": {
-          "en": "/projects/project-1/",
-          "fr": "/projets/projet-1/"
+        "urls": {
+          "en": "/projects/project-1",
+          "fr": "/projets/projet-1"
         },
         "label": {
           "en": "Project 1",
           "fr": "Projet 1"
-        }
+        },
+        "children": []
       },
       {
         "key": "project-2",
-        "url": {
-          "en": "/projects/project-2/",
-          "fr": "/projets/projet-2/"
+        "urls": {
+          "en": "/projects/project-2",
+          "fr": "/projets/projet-2"
         },
         "label": {
           "en": "Project 2",
           "fr": "Projet 2"
-        }
+        },
+        "children": []
       }
     ]
   },
   {
-    "key": "blog",
-    "url": {
-      "en": "/blog",
-      "fr": "/blog"
-    },
-    "label": {
-      "en": "Blog",
-      "fr": "Blog"
-    },
-    "children": []
-  },
-  {
     "key": "reviews",
-    "url": {
+    "urls": {
       "en": "/reviews",
       "fr": "/avis"
     },
@@ -80,7 +62,7 @@
   },
   {
     "key": "contact",
-    "url": {
+    "urls": {
       "en": "/contact",
       "fr": "/contact"
     },
