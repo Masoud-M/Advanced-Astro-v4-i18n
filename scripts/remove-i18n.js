@@ -12,12 +12,6 @@ const root = process.cwd();
 const backupRootDir = path.join(root, "scripts/deleted");
 
 // ─── Guard: already run? ──────────────────────────────────────────────────────
-const markerPath = path.join(root, ".i18n-removed");
-if (fs.existsSync(markerPath)) {
-    console.log("i18n has already been removed (.i18n-removed marker exists).");
-    process.exit(0);
-}
-
 if (checkFeatureFlagBeforeRun(root, "i18n", "i18n")) {
     process.exit(0);
 }
@@ -62,21 +56,14 @@ function keepEnglishOnly(value) {
     }
 
     if (value && typeof value === "object") {
-        const keys = Object.keys(value);
-
-        // Localized object (en, fr, de, etc.)
-        if (keys.includes("en")) {
-            const localeKeys = keys.filter((k) => /^[a-z]{2}(-[A-Z]{2})?$/.test(k));
-
-            if (localeKeys.length > 1 || (localeKeys.length === 1 && localeKeys[0] === "en")) {
-                return { en: value.en };
-            }
-        }
-
         const result = {};
 
         for (const [key, val] of Object.entries(value)) {
-            result[key] = keepEnglishOnly(val);
+            if (key === "urls" || key === "label") {
+                result[key] = { en: val.en };
+            } else {
+                result[key] = keepEnglishOnly(val);
+            }
         }
 
         return result;
@@ -168,6 +155,9 @@ async function runRemoval() {
 
     // 2. Remove (Move) i18n-owned directories
     removeDirectory(path.join(root, "src/features/i18n"));
+    moveToDeletedBackup(
+        path.join(root, "src/data/i18nConfig.ts")
+    );
     removeDirectory(path.join(root, "src/pages/fr"));
     removeDirectory(path.join(root, "src/locales/fr"));
     cleanupNavData();
@@ -179,17 +169,12 @@ async function runRemoval() {
 
     // 4. Clean up imports and component usages
     removeFromFile("src/components/Settings/Settings.astro", [
-        /import\s+TwoLocalesSelect\s+from\s+["']src\/features\/i18n\/LanguageSwitch\/TwoLocalesSelect\.astro["'];?\r?\n/g,
-        /\s*<TwoLocalesSelect\s*\/>\r?\n?/g,
+        /import\s+TwoLocalesSelect\s+from\s+["'][^"']*TwoLocalesSelect\.astro["'];?\r?\n/g, /\s*<TwoLocalesSelect\s*\/>\r?\n?/g,
     ]);
 
     removeFromFile("src/pages/index.astro", [
-        /import\s+BrowserLanguageRedirect\s+from\s+["']src\/features\/i18n\/LanguageSwitch\/BrowserLanguageRedirect\.astro["'];?\r?\n/g,
-        /\s*<BrowserLanguageRedirect\s*\/>\r?\n?/g,
+        /import\s+BrowserLanguageRedirect\s+from\s+["'][^"']*BrowserLanguageRedirect\.astro["'];?\r?\n/g, /\s*<BrowserLanguageRedirect\s*\/>\r?\n?/g,
     ]);
-
-    // 5. Create structural execution marker
-    fs.writeFileSync(markerPath, new Date().toISOString() + "\n", "utf8");
 
     console.log("\n✔ i18n removal complete. Originals backed up to scripts/deleted/");
 }
