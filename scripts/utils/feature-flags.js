@@ -10,7 +10,7 @@ import { join } from "path";
  * @returns {boolean} True if the feature is already disabled.
  */
 export function checkFeatureFlagBeforeRun(root, flagName, featureLabel) {
-    const flagsPath = join(root, "src", "features", "featuresflags.ts");
+    const flagsPath = join(root, "src", "features", "featuresFlags.ts");
 
     try {
         const content = readFileSync(flagsPath, "utf8");
@@ -35,9 +35,9 @@ export function checkFeatureFlagBeforeRun(root, flagName, featureLabel) {
  * @param {string} flagName - Feature flag key.
  */
 export async function disableFeatureFlag(root, flagName) {
-    console.log("\n🚩 Updating src/features/featuresflags.ts...");
+    console.log("\n🚩 Updating src/features/featuresFlags.ts...");
 
-    const flagsPath = join(root, "src", "features", "featuresflags.ts");
+    const flagsPath = join(root, "src", "features", "featuresFlags.ts");
 
     try {
         await fs.access(flagsPath);
@@ -55,7 +55,7 @@ export async function disableFeatureFlag(root, flagName) {
         }
     } catch (error) {
         if (error.code === "ENOENT") {
-            console.warn("⚠ Missing src/features/featuresflags.ts");
+            console.warn("⚠ Missing src/features/featuresFlags.ts");
         } else {
             console.error(`❌ Failed to update feature flags: ${error.message}`);
         }
