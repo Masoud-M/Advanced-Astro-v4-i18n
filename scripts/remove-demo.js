@@ -33,7 +33,6 @@ const DEMO = {
 	assets: [
 		join(root, "src", "assets", "images", "hero.jpg"),
 		join(root, "src", "assets", "images", "hero-m.jpg"),
-		join(root, "src", "assets", "images", "landing.jpg"),
 		join(root, "src", "assets", "images", "construction.jpg"),
 		join(root, "src", "assets", "images", "portfolio"),
 		join(root, "src", "assets", "images", "CTA"),
@@ -153,7 +152,6 @@ async function removeDemoReferences(componentNames) {
 	const demoAssets = [
 		"hero",
 		"hero-m",
-		"landing",
 		"construction",
 		"portfolio",
 		"CTA",
