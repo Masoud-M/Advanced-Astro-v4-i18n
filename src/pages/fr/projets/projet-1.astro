@@ -1,7 +1,6 @@
 ---
 import { getSiteContext } from "@js/getSiteContext";
 import BaseLayout from "@layouts/BaseLayout.astro";
-import CTA from "@components/CTA/CTA.astro";
 import Banner from "src/features/demo/Banner.astro";
 import { Picture } from "astro:assets";
 import port1 from "@assets/images/portfolio/port1.jpg";
@@ -16,6 +15,7 @@ import port9 from "@assets/images/portfolio/port9.jpg";
 
 import landingImage from "@assets/images/landing.jpg";
 import { getRoute } from "@js/routes";
+import CTA from "src/features/demo/CTA.astro";
 
 const { content, locale } = await getSiteContext(Astro.url);
 ---

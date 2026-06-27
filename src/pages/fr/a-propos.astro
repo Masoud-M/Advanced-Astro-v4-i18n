@@ -1,13 +1,13 @@
 ---
 import { getSiteContext } from "@js/getSiteContext";
 import BaseLayout from "@layouts/BaseLayout.astro";
-import CTA from "@components/CTA/CTA.astro";
 import Banner from "src/features/demo/Banner.astro";
 import { Picture } from "astro:assets";
 import cabinets2 from "@assets/images/CTA/cabinets2.jpg";
 import construction from "@assets/images/construction.jpg";
 
 import landingImage from "@assets/images/landing.jpg";
+import CTA from "src/features/demo/CTA.astro";
 
 const { content } = await getSiteContext(Astro.url);
 ---

@@ -238,7 +238,6 @@ const t = useTranslations(locale);
 	writeFileSync(markerPath, new Date().toISOString() + "\n", "utf8");
 
 	console.log("\nDone! Demo content has been removed.");
-	console.log("The .demo-removed marker file has been created to prevent re-running.");
 	console.log("\nNext steps:");
 	console.log("  1. Run `npm run dev` to verify the site still loads");
 	console.log("  2. Update src/data/client.ts with your client's information");

@@ -6,10 +6,10 @@ import SideBySide from "src/features/demo/SideBySide.astro";
 import SideBySideReverse from "src/features/demo/SideBySideReverse.astro";
 import Gallery from "src/features/demo/Gallery.astro";
 import Testimonials from "src/features/demo/Testimonials.astro";
-import CTA from "@components/CTA/CTA.astro";
 import landingImage from "@assets/images/hero.jpg";
 import { getSiteContext } from "@js/getSiteContext";
 import BrowserLanguageRedirect from "src/features/i18n/LanguageSwitch/BrowserLanguageRedirect.astro";
+import CTA from "src/features/demo/CTA.astro";
 
 const { content } = await getSiteContext(Astro.url);
 ---

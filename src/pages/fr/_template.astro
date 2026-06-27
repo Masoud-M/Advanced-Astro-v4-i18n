@@ -12,9 +12,9 @@
  */
 import BaseLayout from "@layouts/BaseLayout.astro";
 import Banner from "src/features/demo/Banner.astro";
-import CTA from "@components/CTA/CTA.astro";
 import landingImage from "@assets/images/landing.jpg";
 import { getSiteContext } from "@js/getSiteContext";
+import CTA from "src/features/demo/CTA.astro";
 
 const { content } = await getSiteContext(Astro.url);
 ---
