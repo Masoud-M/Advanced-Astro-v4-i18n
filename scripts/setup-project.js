@@ -4,15 +4,20 @@ import { readFileSync } from "fs";
 import { join } from "path";
 import readline from "readline";
 import { spawn } from "child_process";
-import { checkFeatureFlagBeforeRun, disableFeatureFlag } from "./utils/feature-flags";
+import {
+    checkFeatureFlagBeforeRun,
+    disableFeatureFlag,
+} from "./utils/feature-flags.js";
+
+const root = process.cwd();
 
 
-// Guard block. If the value of setup inside the featuresFlags.ts is set to false. It means this script has been run before and can't be used again.
+// Guard block. if the value of setup inside the featuresFlags.ts is set to false. it means this script has been run.
 if (checkFeatureFlagBeforeRun(root, "setup", "project setup")) {
     process.exit(0);
 }
 
-const root = process.cwd();
+
 
 const featuresFile = join(
     root,
@@ -36,6 +41,7 @@ function readFeatureFlags() {
     };
 
     return {
+        setup: getFlag("setup"),
         i18n: getFlag("i18n"),
         cms: getFlag("cms"),
         demo: getFlag("demo"),
@@ -165,13 +171,13 @@ async function main() {
             process.exit(1);
         }
     }
+    await disableFeatureFlag(root, "setup");
 
     console.log("\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
     console.log("✅ Project setup complete.");
     console.log("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n");
 }
 
-await disableFeatureFlag(root, "setup");
 
 main().catch((error) => {
     console.error("\nFatal error:");
