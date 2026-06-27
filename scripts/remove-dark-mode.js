@@ -27,13 +27,6 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 const root = process.env.SCRIPT_ROOT ?? join(__dirname, "..");
 
 // ─── Guard: already run? ──────────────────────────────────────────────────────
-const markerPath = join(root, ".dark-mode-removed");
-
-if (existsSync(markerPath)) {
-	console.log("Dark mode has already been removed (.dark-mode-removed marker exists).");
-	process.exit(0);
-}
-
 if (checkFeatureFlagBeforeRun(root, "darkMode", "Dark Mode")) {
 	process.exit(0);
 }
@@ -232,9 +225,6 @@ async function runRemoval() {
 
 	// ── Disable feature flag ──────────────────────────────────────────────────
 	await disableFeatureFlag(root, "darkMode");
-
-	// ── Create marker ─────────────────────────────────────────────────────────
-	writeFileSync(markerPath, `${new Date().toISOString()}\n`, "utf8");
 
 	console.log("\nDone! Dark mode has been fully removed.\n");
 }
