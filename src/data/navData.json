@@ -1,5 +1,17 @@
 [
   {
+    "key": "home",
+    "urls": {
+      "en": "/",
+      "fr": "/"
+    },
+    "label": {
+      "en": "Home",
+      "fr": "Home"
+    },
+    "children": []
+  },
+  {
     "key": "about",
     "urls": {
       "en": "/about",
