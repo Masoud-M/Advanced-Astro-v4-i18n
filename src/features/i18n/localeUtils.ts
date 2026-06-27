@@ -1,8 +1,4 @@
-import {
-  locales,
-  defaultLocale,
-  type Locale,
-} from "src/features/i18n/config.ts";
+import { locales, defaultLocale, type Locale } from "@data/i18nConfig";
 
 /** Filter a content collection array to entries whose ID starts with the given locale prefix. */
 export function filterCollectionByLanguage<T extends { id: string }>(

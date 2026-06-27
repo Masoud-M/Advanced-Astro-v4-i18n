@@ -1,8 +1,9 @@
 import { getCollection } from "astro:content";
-import type { Locale } from "../config";
-import { locales, defaultLocale } from "../config";
-import { routeTranslations, localizedCollections } from "../config";
+import type { Locale } from "../../../data/i18nConfig";
+import { locales, defaultLocale } from "../../../data/i18nConfig";
+import { localizedCollections } from "../../../data/i18nConfig";
 import { getPostSlug } from "../../decapCMS/core/blogUtils";
+import { routeTranslations } from "../routeTranslations";
 
 let cache: Record<string, Record<string, string>> | null = null;
 

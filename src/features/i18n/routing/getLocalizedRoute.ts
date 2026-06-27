@@ -1,5 +1,6 @@
-import type { Locale } from "../config";
-import { routeTranslations, defaultLocale } from "../config";
+import type { Locale } from "../../../data/i18nConfig";
+import { defaultLocale } from "../../../data/i18nConfig";
+import { routeTranslations } from "../routeTranslations";
 
 export function getLocalizedRoute(locale: Locale, baseRoute: string): string {
   const trimmed = baseRoute.replace(/^\/|\/$/g, "");

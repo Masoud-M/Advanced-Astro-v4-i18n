@@ -1,8 +1,8 @@
 ---
-import { locales, languageSwitcherMap } from "src/features/i18n/config";
 import { getSiteContext } from "@js/getSiteContext";
 import { useTranslations } from "../core/useTranslations";
 import { getLocalizedPathname } from "../routing/getLocalizedPathname";
+import { languageSwitcherMap, locales } from "@data/i18nConfig";
 
 const { locale } = await getSiteContext(Astro.url);
 const t = useTranslations(locale);
