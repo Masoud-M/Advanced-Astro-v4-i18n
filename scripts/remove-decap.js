@@ -150,12 +150,11 @@ async function cleanupNavData() {
 
 			// 2. Check the item URL safely, walking through strings or deep object values
 			let isBlogUrl = false;
-			if (item.url) {
-				if (typeof item.url === "string") {
-					isBlogUrl = item.url.replace(/\/$/, "") === "/blog";
-				} else if (typeof item.url === "object") {
-					// Check every value inside the localization object (e.g., item.url.en, item.url.fr, etc.)
-					isBlogUrl = Object.values(item.url).some(
+			if (item.urls) {
+				if (typeof item.urls === "string") {
+					isBlogUrl = item.urls.replace(/\/$/, "") === "/blog";
+				} else if (typeof item.urls === "object") {
+					isBlogUrl = Object.values(item.urls).some(
 						val => typeof val === "string" && val.replace(/\/$/, "") === "/blog"
 					);
 				}
