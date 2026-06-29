@@ -138,10 +138,10 @@ function determineOperations({ defaultLocale, currentLocales, newDefaultLocale, 
 	return { localesToAdd, localesToRemove, editOldDefaultToNewDefault };
 }
 
-// ─── Phase A: astro.config.mjs ────────────────────────────────────────────────
+// ─── Phase A: astro.config.ts ────────────────────────────────────────────────
 
 async function patchAstroConfig({ defaultLocale, newDefaultLocale, newLocales, prefixDefaultLocale }) {
-	const configPath = join(root, "astro.config.mjs");
+	const configPath = join(root, "astro.config.ts");
 	try {
 		let content = await fs.readFile(configPath, "utf-8");
 		const localesString = newLocales.map((l) => `"${l}"`).join(", ");
@@ -149,15 +149,15 @@ async function patchAstroConfig({ defaultLocale, newDefaultLocale, newLocales, p
 		content = content.replace(/locales:\s*\[[^\]]+\]/, `locales: [${localesString}]`);
 		content = content.replace(/prefixDefaultLocale:\s*(true|false)/, `prefixDefaultLocale: ${prefixDefaultLocale}`);
 		await fs.writeFile(configPath, content, "utf-8");
-		console.log("  Patched astro.config.mjs");
+		console.log("  Patched astro.config.ts");
 	} catch (err) {
-		console.error(`  Error patching astro.config.mjs: ${err.message}`);
+		console.error(`  Error patching astro.config.ts: ${err.message}`);
 	}
 }
 
 // ─── Phase B: i18nConfig.ts ───────────────────────────────────────────────────
 
-async function patchSiteSettings({ defaultLocale, newDefaultLocale, newLocales }) {
+async function patchSiteSettings({ defaultLocale, newDefaultLocale, newLocales, localesToAdd, localesToRemove, editOldDefaultToNewDefault }) {
 	const settingsPath = join(root, "src", "data", "i18nConfig.ts");
 	try {
 		let content = await fs.readFile(settingsPath, "utf-8");
@@ -187,6 +187,17 @@ async function patchSiteSettings({ defaultLocale, newDefaultLocale, newLocales }
 			/languageSwitcherMap[^=]*=\s*\{[^}]+\}/,
 			`languageSwitcherMap: Record<Locale, string> = ${newLangMapStr}`,
 		);
+
+		// localizedCollections — add/remove/rename locale entries
+		for (const locale of localesToAdd) {
+			content = modifyLocalizedCollections(content, "add", { locale, defaultLocale });
+		}
+		for (const locale of localesToRemove) {
+			content = modifyLocalizedCollections(content, "remove", { locale });
+		}
+		if (editOldDefaultToNewDefault) {
+			content = modifyLocalizedCollections(content, "rename", { from: defaultLocale, to: newDefaultLocale });
+		}
 
 		await fs.writeFile(settingsPath, content, "utf-8");
 		console.log("  Patched src/data/i18nConfig.ts");
@@ -588,10 +599,10 @@ async function configI18n() {
 	}
 	const { defaultLocale, locales: currentLocales } = current;
 
-	// Read current prefixDefaultLocale from astro.config.mjs
+	// Read current prefixDefaultLocale from astro.config.ts
 	let currentPrefixDefaultLocale = false;
 	try {
-		const astroConfig = await fs.readFile(join(root, "astro.config.mjs"), "utf-8");
+		const astroConfig = await fs.readFile(join(root, "astro.config.ts"), "utf-8");
 		const m = astroConfig.match(/prefixDefaultLocale:\s*(true|false)/);
 		currentPrefixDefaultLocale = m?.[1] === "true";
 	} catch { /* keep false */ }
@@ -674,7 +685,7 @@ async function configI18n() {
 	const ops = { defaultLocale, newDefaultLocale, currentLocales, newLocales, localesToAdd, localesToRemove, editOldDefaultToNewDefault, prefixDefaultLocale, currentPrefixDefaultLocale };
 
 	// ── Phase A ───────────────────────────────────────────────────────────────
-	console.log("Phase A: astro.config.mjs...");
+	console.log("Phase A: astro.config.ts...");
 	await patchAstroConfig(ops);
 
 	// ── Phase B ───────────────────────────────────────────────────────────────
