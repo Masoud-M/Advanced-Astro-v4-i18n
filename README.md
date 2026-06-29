@@ -97,7 +97,6 @@ All commands are run from the root of the project, from a terminal:
 | `npm run remove-dark-mode` | Removes dark mode components and styles      |
 | `npm run remove-decap`     | Removes Decap CMS integration                |
 | `npm run create-page`      | Scaffolds a new page for all locales         |
-| `npm run test:scripts`     | Runs unit tests for the utility scripts      |
 
 ## Features
 
