@@ -263,13 +263,7 @@ async function main() {
 		}
 
 		// ── navData.json ───────────────────────────────────────
-		registerNavItem(
-			slugMap,
-			{
-				en: titleMap[defaultLocale],
-				fr: titleMap.fr ?? titleMap[defaultLocale]
-			}
-		);
+		const navStatus = registerNavItem(slugMap, titleMap);
 
 		if (navStatus === "registered") {
 			console.log("Registered in navData.json");

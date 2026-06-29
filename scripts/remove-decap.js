@@ -1,4 +1,4 @@
-import { promises as fs } from "fs";
+import { readFileSync, promises as fs } from "fs";
 import { join, dirname } from "path";
 import { fileURLToPath } from "url";
 import readline from "readline";
@@ -19,7 +19,7 @@ if (checkFeatureFlagBeforeRun(root, "cms", "Decap CMS")) {
 
 
 // Decap CMS file and directory paths
-const astroConfigPath = join(root, "astro.config.mjs");
+const astroConfigPath = join(root, "astro.config.ts");
 const adminSourcePath = join(root, "public", "admin");
 const adminPagePath = join(root, "src", "pages", "admin.astro");
 const destinationDir = join(root, "scripts", "deleted");
@@ -74,10 +74,9 @@ async function moveItem(sourcePath, destPath, label) {
 		} catch { }
 
 		await fs.rename(sourcePath, destPath);
-		console.log(`✅ Moved ${label}`);
 	} catch (error) {
 		if (error.code === "ENOENT") {
-			console.log(`ℹ️  ${label} not found, skipping...`);
+			// not found — skip silently
 		} else {
 			console.error(`❌ Error moving ${label}: ${error.message}`);
 		}
@@ -220,7 +219,7 @@ async function removeDecapCMS() {
 		let config = await fs.readFile(astroConfigPath, "utf-8");
 		config = config.replace(/filter:\s*\(page\)\s*=>\s*!page\.includes\(["']\/admin["']\),\s*\n?/, "");
 		await fs.writeFile(astroConfigPath, config, "utf-8");
-		console.log("\n✅ Cleaned up tracking definitions inside astro.config.mjs");
+		console.log("\n✅ Cleaned up tracking definitions inside astro.config.ts");
 	} catch { }
 
 	await disableFeatureFlag(root, "cms");

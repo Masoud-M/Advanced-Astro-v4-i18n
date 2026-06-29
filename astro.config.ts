@@ -1,9 +1,10 @@
 import { defineConfig, fontProviders } from "astro/config";
 import icon from "astro-icon";
 import sitemap from "@astrojs/sitemap";
+import { SITE } from "./src/data/client";
 
 export default defineConfig({
-	site: "https://www.yourwebsite.com", // update me!
+	site: SITE.url,
 	i18n: {
 		defaultLocale: "en",
 		locales: ["en", "fr"],

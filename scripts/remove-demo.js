@@ -64,18 +64,9 @@ async function exists(path) {
 	}
 }
 
-async function removeItem(path, label) {
-	if (!(await exists(path))) {
-		console.log(`ℹ️  ${label} not found, skipping...`);
-		return;
-	}
-
-	await fs.rm(path, {
-		recursive: true,
-		force: true,
-	});
-
-	console.log(`✅ Removed ${label}`);
+async function removeItem(path) {
+	if (!(await exists(path))) return;
+	await fs.rm(path, { recursive: true, force: true });
 }
 
 async function ask(question) {
@@ -195,7 +186,6 @@ async function removeDemoReferences(componentNames) {
 		if (source !== original) {
 			await fs.writeFile(file, source, "utf8");
 			updated++;
-			console.log(`   cleaned ${relative(root, file)}`);
 		}
 	}
 
@@ -260,13 +250,13 @@ async function removeDemo() {
 	console.log("\nRemoving demo pages...\n");
 
 	for (const page of DEMO.pages) {
-		await removeItem(page, relative(root, page));
+		await removeItem(page);
 	}
 
 	console.log("\nRemoving demo assets...\n");
 
 	for (const asset of DEMO.assets) {
-		await removeItem(asset, relative(root, asset));
+		await removeItem(asset);
 	}
 
 	console.log();
@@ -281,10 +271,7 @@ async function removeDemo() {
 
 	console.log("\nRemoving demo feature...\n");
 
-	await removeItem(
-		DEMO.featureDir,
-		"src/features/demo"
-	);
+	await removeItem(DEMO.featureDir);
 
 	console.log();
 

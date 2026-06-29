@@ -138,10 +138,10 @@ function determineOperations({ defaultLocale, currentLocales, newDefaultLocale, 
 	return { localesToAdd, localesToRemove, editOldDefaultToNewDefault };
 }
 
-// ─── Phase A: astro.config.mjs ────────────────────────────────────────────────
+// ─── Phase A: astro.config.ts ────────────────────────────────────────────────
 
 async function patchAstroConfig({ defaultLocale, newDefaultLocale, newLocales, prefixDefaultLocale }) {
-	const configPath = join(root, "astro.config.mjs");
+	const configPath = join(root, "astro.config.ts");
 	try {
 		let content = await fs.readFile(configPath, "utf-8");
 		const localesString = newLocales.map((l) => `"${l}"`).join(", ");
@@ -149,16 +149,16 @@ async function patchAstroConfig({ defaultLocale, newDefaultLocale, newLocales, p
 		content = content.replace(/locales:\s*\[[^\]]+\]/, `locales: [${localesString}]`);
 		content = content.replace(/prefixDefaultLocale:\s*(true|false)/, `prefixDefaultLocale: ${prefixDefaultLocale}`);
 		await fs.writeFile(configPath, content, "utf-8");
-		console.log("  Patched astro.config.mjs");
+		console.log("  Patched astro.config.ts");
 	} catch (err) {
-		console.error(`  Error patching astro.config.mjs: ${err.message}`);
+		console.error(`  Error patching astro.config.ts: ${err.message}`);
 	}
 }
 
-// ─── Phase B: siteSettings.ts ─────────────────────────────────────────────────
+// ─── Phase B: i18nConfig.ts ───────────────────────────────────────────────────
 
-async function patchSiteSettings({ defaultLocale, newDefaultLocale, newLocales }) {
-	const settingsPath = join(root, "src", "config", "siteSettings.ts");
+async function patchSiteSettings({ defaultLocale, newDefaultLocale, newLocales, localesToAdd, localesToRemove, editOldDefaultToNewDefault }) {
+	const settingsPath = join(root, "src", "data", "i18nConfig.ts");
 	try {
 		let content = await fs.readFile(settingsPath, "utf-8");
 
@@ -188,17 +188,31 @@ async function patchSiteSettings({ defaultLocale, newDefaultLocale, newLocales }
 			`languageSwitcherMap: Record<Locale, string> = ${newLangMapStr}`,
 		);
 
+		// localizedCollections — add/remove/rename locale entries
+		for (const locale of localesToAdd) {
+			content = modifyLocalizedCollections(content, "add", { locale, defaultLocale });
+		}
+		for (const locale of localesToRemove) {
+			content = modifyLocalizedCollections(content, "remove", { locale });
+		}
+		if (editOldDefaultToNewDefault) {
+			content = modifyLocalizedCollections(content, "rename", { from: defaultLocale, to: newDefaultLocale });
+		}
+
 		await fs.writeFile(settingsPath, content, "utf-8");
-		console.log("  Patched src/config/siteSettings.ts");
+		console.log("  Patched src/data/i18nConfig.ts");
 	} catch (err) {
-		console.error(`  Error patching siteSettings.ts: ${err.message}`);
+		console.error(`  Error patching i18nConfig.ts: ${err.message}`);
 	}
 }
 
 // ─── Phase C: routeTranslations.ts ───────────────────────────────────────────
+// Note: routeTranslations.ts is now generated dynamically from navData.json,
+// so this phase is a no-op on the current project structure. Route slugs for
+// new locales must be added manually in src/data/navData.json.
 
 async function patchRouteTranslations({ defaultLocale, newDefaultLocale, localesToAdd, localesToRemove, editOldDefaultToNewDefault }) {
-	const rtPath = join(root, "src", "config", "routeTranslations.ts");
+	const rtPath = join(root, "src", "features", "i18n", "routeTranslations.ts");
 	if (!existsSync(rtPath)) {
 		console.log("  Skipped routeTranslations.ts — not found");
 		return;
@@ -232,7 +246,7 @@ async function patchRouteTranslations({ defaultLocale, newDefaultLocale, locales
 
 		content = content.replace(/\n{3,}/g, "\n\n");
 		await fs.writeFile(rtPath, content, "utf-8");
-		console.log("  Patched src/config/routeTranslations.ts");
+		console.log("  Patched src/features/i18n/routeTranslations.ts");
 	} catch (err) {
 		console.error(`  Error patching routeTranslations.ts: ${err.message}`);
 	}
@@ -307,6 +321,8 @@ async function patchLocalesFolders({ defaultLocale, newDefaultLocale, localesToA
 
 const SWAP_TMP = "_locale_swap_tmp_";
 const isLocaleDir = (name) => /^[a-z]{2}(-[a-z]{2})?$/i.test(name);
+// Pages that must always live at root regardless of locale structure.
+const ROOT_ONLY_PAGES = new Set(["admin.astro"]);
 
 // Returns the subfolder name where a locale's pages live, or null for root.
 function defaultPagesDir(prefix, locale) {
@@ -334,7 +350,7 @@ async function patchPagesFolders({
 			if (oldDefaultDir === null) {
 				// false → true: move root pages into {locale}/
 				const rootEntries = await fs.readdir(pagesDir, { withFileTypes: true });
-				const rootItems = rootEntries.filter((e) => !isLocaleDir(e.name));
+				const rootItems = rootEntries.filter((e) => !isLocaleDir(e.name) && !ROOT_ONLY_PAGES.has(e.name));
 				const destDir = join(pagesDir, newDefaultTargetDir);
 				await fs.mkdir(destDir, { recursive: true });
 				for (const e of rootItems) {
@@ -388,7 +404,7 @@ async function patchPagesFolders({
 
 				// 1b. Move old default root pages → subfolder or deleted
 				const rootEntries = await fs.readdir(pagesDir, { withFileTypes: true });
-				const rootItems = rootEntries.filter((e) => e.name !== SWAP_TMP && !isLocaleDir(e.name));
+				const rootItems = rootEntries.filter((e) => e.name !== SWAP_TMP && !isLocaleDir(e.name) && !ROOT_ONLY_PAGES.has(e.name));
 
 				if (localesToRemove.includes(defaultLocale)) {
 					await fs.mkdir(deletedDir, { recursive: true });
@@ -435,7 +451,7 @@ async function patchPagesFolders({
 		} else if (oldDefaultDir === null && newDefaultTargetDir !== null) {
 			// false → true, locale change: move root → {defaultLocale}/; new default stays in {newDefaultLocale}/
 			const rootEntries = await fs.readdir(pagesDir, { withFileTypes: true });
-			const rootItems = rootEntries.filter((e) => !isLocaleDir(e.name));
+			const rootItems = rootEntries.filter((e) => !isLocaleDir(e.name) && !ROOT_ONLY_PAGES.has(e.name));
 
 			if (localesToRemove.includes(defaultLocale)) {
 				await fs.mkdir(deletedDir, { recursive: true });
@@ -492,6 +508,10 @@ async function patchPagesFolders({
 		}
 		if (templateLocale) {
 			await fs.cp(join(pagesDir, templateLocale), dest, { recursive: true });
+			for (const page of ROOT_ONLY_PAGES) {
+				const copied = join(dest, page);
+				if (existsSync(copied)) await fs.rm(copied);
+			}
 			console.log(`  Created src/pages/${locale}/ (copied from src/pages/${templateLocale}/)`);
 			console.log(`  ⚠️  Content in src/pages/${locale}/ is in ${templateLocale} — translate manually`);
 		} else {
@@ -579,16 +599,16 @@ async function configI18n() {
 	// ── Read current config ───────────────────────────────────────────────────
 	const current = readI18nConfig(root);
 	if (!current) {
-		console.error("Could not read i18n config from src/config/siteSettings.ts. Exiting.");
+		console.error("Could not read i18n config from src/data/i18nConfig.ts. Exiting.");
 		rl.close();
 		process.exit(1);
 	}
 	const { defaultLocale, locales: currentLocales } = current;
 
-	// Read current prefixDefaultLocale from astro.config.mjs
+	// Read current prefixDefaultLocale from astro.config.ts
 	let currentPrefixDefaultLocale = false;
 	try {
-		const astroConfig = await fs.readFile(join(root, "astro.config.mjs"), "utf-8");
+		const astroConfig = await fs.readFile(join(root, "astro.config.ts"), "utf-8");
 		const m = astroConfig.match(/prefixDefaultLocale:\s*(true|false)/);
 		currentPrefixDefaultLocale = m?.[1] === "true";
 	} catch { /* keep false */ }
@@ -596,15 +616,7 @@ async function configI18n() {
 	console.log(`\nCurrent config: defaultLocale="${defaultLocale}", locales=[${currentLocales.join(", ")}], prefixDefaultLocale=${currentPrefixDefaultLocale}\n`);
 	console.log("NOTE: locale examples at https://github.com/cospired/i18n-iso-languages\n");
 
-	// ── Prompt 1: multiple languages? ─────────────────────────────────────────
-	const multiAnswer = (await ask("Do you plan to use multiple languages? (y/n): ")).trim().toLowerCase();
-	if (multiAnswer !== "y") {
-		rl.close();
-		console.log("\nExiting. No changes made.\n");
-		process.exit(0);
-	}
-
-	// ── Prompt 2: new default locale ──────────────────────────────────────────
+	// ── Prompt 1: new default locale ─────────────────────────────────────────
 	let newDefaultLocale;
 	while (true) {
 		const answer = (await ask(`\nDefault locale? [${defaultLocale}]: `)).trim();
@@ -671,7 +683,7 @@ async function configI18n() {
 	const ops = { defaultLocale, newDefaultLocale, currentLocales, newLocales, localesToAdd, localesToRemove, editOldDefaultToNewDefault, prefixDefaultLocale, currentPrefixDefaultLocale };
 
 	// ── Phase A ───────────────────────────────────────────────────────────────
-	console.log("Phase A: astro.config.mjs...");
+	console.log("Phase A: astro.config.ts...");
 	await patchAstroConfig(ops);
 
 	// ── Phase B ───────────────────────────────────────────────────────────────
@@ -708,8 +720,8 @@ async function configI18n() {
 	let step = 1;
 	if (localesToAdd.length > 0) {
 		console.log(`${step++}. Translate strings in src/locales/${localesToAdd.join("/ and src/locales/")}/`);
-		console.log(`${step++}. Update route slugs in src/config/routeTranslations.ts`);
-		console.log(`${step++}. Review auto-generated localeMap values in src/config/siteSettings.ts`);
+		console.log(`${step++}. Add translated URL slugs for each new locale in src/data/navData.json`);
+		console.log(`${step++}. Review auto-generated localeMap values in src/data/i18nConfig.ts`);
 	}
 	console.log(`${step++}. Run \`npm run dev\` to verify the site loads`);
 	console.log();

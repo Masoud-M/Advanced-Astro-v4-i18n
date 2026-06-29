@@ -57,7 +57,6 @@ function remove(relPath) {
 
 	if (existsSync(abs)) {
 		rmSync(abs, { recursive: true, force: true });
-		console.log(`  removed  ${relPath}`);
 	}
 }
 
@@ -71,7 +70,6 @@ function replace(relPath, from, to) {
 
 	if (before !== after) {
 		writeFileSync(abs, after, "utf8");
-		console.log(`  updated  ${relPath}`);
 	}
 }
 
@@ -85,7 +83,6 @@ function replaceRegex(relPath, pattern, replacement) {
 
 	if (before !== after) {
 		writeFileSync(abs, after, "utf8");
-		console.log(`  updated  ${relPath}`);
 	}
 }
 
@@ -213,13 +210,6 @@ async function runRemoval() {
 
 		if (before !== after) {
 			writeFileSync(file, after, "utf8");
-
-			const rel = file
-				.slice(root.length)
-				.replace(/\\/g, "/")
-				.replace(/^\//, "");
-
-			console.log(`  updated  ${rel}`);
 		}
 	}
 

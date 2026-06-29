@@ -73,7 +73,7 @@ const FEATURES = [
 ];
 
 function askQuestion(rl, question, defaultYes = true) {
-    const suffix = defaultYes ? " (Y/n): " : " (y/N): ";
+    const suffix = " (y/n): ";
 
     return new Promise((resolve) => {
         rl.question(question + suffix, (answer) => {
@@ -172,6 +172,18 @@ async function main() {
         }
     }
     await disableFeatureFlag(root, "setup");
+
+    const i18nAction = actions.find((a) => a.key === "i18n");
+    if (i18nAction && !i18nAction.remove) {
+        const rl2 = readline.createInterface({ input: process.stdin, output: process.stdout });
+        const configNow = await new Promise((resolve) =>
+            rl2.question("\nWould you like to configure your locales now? (y/n): ", (a) => {
+                rl2.close();
+                resolve(a.trim().toLowerCase() === "y");
+            })
+        );
+        if (configNow) await runScript("config-i18n");
+    }
 
     console.log("\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
     console.log("✅ Project setup complete.");
