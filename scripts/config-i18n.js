@@ -616,15 +616,7 @@ async function configI18n() {
 	console.log(`\nCurrent config: defaultLocale="${defaultLocale}", locales=[${currentLocales.join(", ")}], prefixDefaultLocale=${currentPrefixDefaultLocale}\n`);
 	console.log("NOTE: locale examples at https://github.com/cospired/i18n-iso-languages\n");
 
-	// ── Prompt 1: multiple languages? ─────────────────────────────────────────
-	const multiAnswer = (await ask("Do you plan to use multiple languages? (y/n): ")).trim().toLowerCase();
-	if (multiAnswer !== "y") {
-		rl.close();
-		console.log("\nExiting. No changes made.\n");
-		process.exit(0);
-	}
-
-	// ── Prompt 2: new default locale ──────────────────────────────────────────
+	// ── Prompt 1: new default locale ─────────────────────────────────────────
 	let newDefaultLocale;
 	while (true) {
 		const answer = (await ask(`\nDefault locale? [${defaultLocale}]: `)).trim();
