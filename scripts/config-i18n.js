@@ -321,6 +321,8 @@ async function patchLocalesFolders({ defaultLocale, newDefaultLocale, localesToA
 
 const SWAP_TMP = "_locale_swap_tmp_";
 const isLocaleDir = (name) => /^[a-z]{2}(-[a-z]{2})?$/i.test(name);
+// Pages that must always live at root regardless of locale structure.
+const ROOT_ONLY_PAGES = new Set(["admin.astro"]);
 
 // Returns the subfolder name where a locale's pages live, or null for root.
 function defaultPagesDir(prefix, locale) {
@@ -348,7 +350,7 @@ async function patchPagesFolders({
 			if (oldDefaultDir === null) {
 				// false → true: move root pages into {locale}/
 				const rootEntries = await fs.readdir(pagesDir, { withFileTypes: true });
-				const rootItems = rootEntries.filter((e) => !isLocaleDir(e.name));
+				const rootItems = rootEntries.filter((e) => !isLocaleDir(e.name) && !ROOT_ONLY_PAGES.has(e.name));
 				const destDir = join(pagesDir, newDefaultTargetDir);
 				await fs.mkdir(destDir, { recursive: true });
 				for (const e of rootItems) {
@@ -402,7 +404,7 @@ async function patchPagesFolders({
 
 				// 1b. Move old default root pages → subfolder or deleted
 				const rootEntries = await fs.readdir(pagesDir, { withFileTypes: true });
-				const rootItems = rootEntries.filter((e) => e.name !== SWAP_TMP && !isLocaleDir(e.name));
+				const rootItems = rootEntries.filter((e) => e.name !== SWAP_TMP && !isLocaleDir(e.name) && !ROOT_ONLY_PAGES.has(e.name));
 
 				if (localesToRemove.includes(defaultLocale)) {
 					await fs.mkdir(deletedDir, { recursive: true });
@@ -449,7 +451,7 @@ async function patchPagesFolders({
 		} else if (oldDefaultDir === null && newDefaultTargetDir !== null) {
 			// false → true, locale change: move root → {defaultLocale}/; new default stays in {newDefaultLocale}/
 			const rootEntries = await fs.readdir(pagesDir, { withFileTypes: true });
-			const rootItems = rootEntries.filter((e) => !isLocaleDir(e.name));
+			const rootItems = rootEntries.filter((e) => !isLocaleDir(e.name) && !ROOT_ONLY_PAGES.has(e.name));
 
 			if (localesToRemove.includes(defaultLocale)) {
 				await fs.mkdir(deletedDir, { recursive: true });
@@ -506,6 +508,10 @@ async function patchPagesFolders({
 		}
 		if (templateLocale) {
 			await fs.cp(join(pagesDir, templateLocale), dest, { recursive: true });
+			for (const page of ROOT_ONLY_PAGES) {
+				const copied = join(dest, page);
+				if (existsSync(copied)) await fs.rm(copied);
+			}
 			console.log(`  Created src/pages/${locale}/ (copied from src/pages/${templateLocale}/)`);
 			console.log(`  ⚠️  Content in src/pages/${locale}/ is in ${templateLocale} — translate manually`);
 		} else {
