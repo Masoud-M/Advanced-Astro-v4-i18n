@@ -155,10 +155,10 @@ async function patchAstroConfig({ defaultLocale, newDefaultLocale, newLocales, p
 	}
 }
 
-// ─── Phase B: siteSettings.ts ─────────────────────────────────────────────────
+// ─── Phase B: i18nConfig.ts ───────────────────────────────────────────────────
 
 async function patchSiteSettings({ defaultLocale, newDefaultLocale, newLocales }) {
-	const settingsPath = join(root, "src", "config", "siteSettings.ts");
+	const settingsPath = join(root, "src", "data", "i18nConfig.ts");
 	try {
 		let content = await fs.readFile(settingsPath, "utf-8");
 
@@ -189,16 +189,19 @@ async function patchSiteSettings({ defaultLocale, newDefaultLocale, newLocales }
 		);
 
 		await fs.writeFile(settingsPath, content, "utf-8");
-		console.log("  Patched src/config/siteSettings.ts");
+		console.log("  Patched src/data/i18nConfig.ts");
 	} catch (err) {
-		console.error(`  Error patching siteSettings.ts: ${err.message}`);
+		console.error(`  Error patching i18nConfig.ts: ${err.message}`);
 	}
 }
 
 // ─── Phase C: routeTranslations.ts ───────────────────────────────────────────
+// Note: routeTranslations.ts is now generated dynamically from navData.json,
+// so this phase is a no-op on the current project structure. Route slugs for
+// new locales must be added manually in src/data/navData.json.
 
 async function patchRouteTranslations({ defaultLocale, newDefaultLocale, localesToAdd, localesToRemove, editOldDefaultToNewDefault }) {
-	const rtPath = join(root, "src", "config", "routeTranslations.ts");
+	const rtPath = join(root, "src", "features", "i18n", "routeTranslations.ts");
 	if (!existsSync(rtPath)) {
 		console.log("  Skipped routeTranslations.ts — not found");
 		return;
@@ -232,7 +235,7 @@ async function patchRouteTranslations({ defaultLocale, newDefaultLocale, locales
 
 		content = content.replace(/\n{3,}/g, "\n\n");
 		await fs.writeFile(rtPath, content, "utf-8");
-		console.log("  Patched src/config/routeTranslations.ts");
+		console.log("  Patched src/features/i18n/routeTranslations.ts");
 	} catch (err) {
 		console.error(`  Error patching routeTranslations.ts: ${err.message}`);
 	}
@@ -579,7 +582,7 @@ async function configI18n() {
 	// ── Read current config ───────────────────────────────────────────────────
 	const current = readI18nConfig(root);
 	if (!current) {
-		console.error("Could not read i18n config from src/config/siteSettings.ts. Exiting.");
+		console.error("Could not read i18n config from src/data/i18nConfig.ts. Exiting.");
 		rl.close();
 		process.exit(1);
 	}
@@ -708,8 +711,8 @@ async function configI18n() {
 	let step = 1;
 	if (localesToAdd.length > 0) {
 		console.log(`${step++}. Translate strings in src/locales/${localesToAdd.join("/ and src/locales/")}/`);
-		console.log(`${step++}. Update route slugs in src/config/routeTranslations.ts`);
-		console.log(`${step++}. Review auto-generated localeMap values in src/config/siteSettings.ts`);
+		console.log(`${step++}. Add translated URL slugs for each new locale in src/data/navData.json`);
+		console.log(`${step++}. Review auto-generated localeMap values in src/data/i18nConfig.ts`);
 	}
 	console.log(`${step++}. Run \`npm run dev\` to verify the site loads`);
 	console.log();
