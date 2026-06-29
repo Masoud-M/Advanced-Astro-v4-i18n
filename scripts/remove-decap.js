@@ -74,10 +74,9 @@ async function moveItem(sourcePath, destPath, label) {
 		} catch { }
 
 		await fs.rename(sourcePath, destPath);
-		console.log(`✅ Moved ${label}`);
 	} catch (error) {
 		if (error.code === "ENOENT") {
-			console.log(`ℹ️  ${label} not found, skipping...`);
+			// not found — skip silently
 		} else {
 			console.error(`❌ Error moving ${label}: ${error.message}`);
 		}

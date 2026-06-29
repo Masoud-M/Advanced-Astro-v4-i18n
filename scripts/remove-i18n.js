@@ -94,9 +94,7 @@ function cleanupNavData() {
 
 function removeDirectory(dir) {
     if (fs.existsSync(dir)) {
-        const displayPath = path.relative(root, dir);
         moveToDeletedBackup(dir);
-        console.log(`✔ Moved directory to backup: ${displayPath}`);
     }
 }
 
@@ -120,7 +118,6 @@ function removeFromFile(filePath, patterns) {
 
     if (updated) {
         fs.writeFileSync(fullPath, content);
-        console.log(`✔ Updated ${filePath}`);
     }
 }
 
@@ -138,10 +135,6 @@ function replaceNoI18n(filePath) {
     }
 
     fs.renameSync(noI18nPath, targetPath);
-
-    console.log(
-        `✔ Replaced ${path.basename(noI18nPath)} → ${path.basename(targetPath)}`
-    );
 }
 
 
